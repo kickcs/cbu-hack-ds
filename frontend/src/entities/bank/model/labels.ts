@@ -27,12 +27,14 @@ const TESTS: Record<string, TestLabel> = {
   benford: {
     name: "Benford's law",
     code: "BEN",
-    about: "First digits of loan amounts against the expected 30.1 / 17.6 / 12.5 % curve",
+    about:
+      "First digits of loan amounts against the expected 30.1 / 17.6 / 12.5 % curve",
   },
   threshold: {
     name: "K1 limit",
     code: "K1",
-    about: "Capital adequacy readings clustering just above the regulatory floor",
+    about:
+      "Capital adequacy readings clustering just above the regulatory floor",
   },
   rounding: {
     name: "Round figures",

@@ -51,7 +51,10 @@ export function AuditLede({ meta, total, flagged, testCount, loading }: Props) {
         {provenance}
       </p>
 
-      <SampleNotice insufficient={meta.insufficient} minSample={meta.min_sample} />
+      <SampleNotice
+        insufficient={meta.insufficient}
+        minSample={meta.min_sample}
+      />
     </div>
   )
 }
@@ -78,8 +81,8 @@ function SampleNotice({
         Sample too small for Benford:
       </span>{" "}
       <span className="text-muted-foreground">
-        {insufficient.join(", ")} hold fewer than {minSample} loan records. Their
-        first-digit reading is withheld rather than reported.
+        {insufficient.join(", ")} hold fewer than {minSample} loan records.
+        Their first-digit reading is withheld rather than reported.
       </span>
     </p>
   )

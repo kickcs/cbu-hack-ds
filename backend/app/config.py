@@ -26,6 +26,10 @@ RESULT_FILE_NAME = "подозрительные_банки.csv"
 NATIJA_DIR_NAME = "natija"
 NATIJA_FILE_NAME = "shubhali_banklar.csv"
 
+# Leading dot: uploads live under the dataset directory but must never be swept up by the
+# dataset scan, which skips dot-directories (see ingest.iter_data_files).
+UPLOAD_DIR_NAME = ".uploads"
+
 
 class Settings(BaseSettings):
     """Paths the audit reads from and writes to, resolved from the environment."""
@@ -39,6 +43,10 @@ class Settings(BaseSettings):
     db_path: Path = Field(
         default=BACKEND_ROOT / "data" / "regtech.db",
         description="SQLite file with raw files, canonical report lines and audit runs.",
+    )
+    upload_dir: Path = Field(
+        default=REPO_ROOT / UPLOAD_DIR_NAME,
+        description="Uploaded submissions, one directory per queued report.",
     )
     result_path: Path = Field(
         default=REPO_ROOT / RESULT_DIR_NAME / RESULT_FILE_NAME,
@@ -58,6 +66,7 @@ class Settings(BaseSettings):
         data_dir = Path(values.get("data_dir") or REPO_ROOT)
         values.setdefault("result_path", data_dir / RESULT_DIR_NAME / RESULT_FILE_NAME)
         values.setdefault("natija_path", data_dir / NATIJA_DIR_NAME / NATIJA_FILE_NAME)
+        values.setdefault("upload_dir", data_dir / UPLOAD_DIR_NAME)
         return values
 
     @classmethod

@@ -12,7 +12,7 @@ import pandas as pd
 
 from .. import benford
 from ..domain import BenfordResult
-from ..ingest.register import bank_column
+from ..ingest.register import amount_column, bank_column
 from ..sampling import is_sample_sufficient
 
 BENFORD_THRESHOLD = benford.MAD_MARGINAL
@@ -42,7 +42,10 @@ def benford_by_bank(
     register: pd.DataFrame, threshold: float = BENFORD_THRESHOLD
 ) -> dict[str, BenfordResult]:
     """Run the test separately for every bank present in the loan register."""
+    if register is None or register.empty:
+        return {}
+    amounts = amount_column(register)
     return {
-        str(bank): run_benford(g["summa"], threshold=threshold)
+        str(bank): run_benford(g[amounts], threshold=threshold)
         for bank, g in register.groupby(bank_column(register))
     }

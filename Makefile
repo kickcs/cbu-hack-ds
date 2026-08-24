@@ -4,10 +4,10 @@ run:
 	docker compose up --build
 
 audit:
-	cd backend && python cli.py --data .. --out ../результат/подозрительные_банки.csv
+	cd backend && python3 cli.py --data .. --out ../результат/подозрительные_банки.csv
 
 test:
-	cd backend && python -m pytest tests/ -q
+	cd backend && python3 -m pytest tests/ -q
 
 dev-backend:
 	cd backend && uvicorn app.main:app --reload --port 8000

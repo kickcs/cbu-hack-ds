@@ -11,90 +11,90 @@
  * undertone, and one vermilion — the inspector's stamp, spent only on findings.
  */
 :root {
-    --background: oklch(0.975 0.006 132);
-    --foreground: oklch(0.235 0.022 152);
-    --card: oklch(0.993 0.003 130);
-    --card-foreground: oklch(0.235 0.022 152);
-    --popover: oklch(0.993 0.003 130);
-    --popover-foreground: oklch(0.235 0.022 152);
-    --primary: oklch(0.285 0.03 152);
-    --primary-foreground: oklch(0.975 0.006 132);
-    --secondary: oklch(0.932 0.014 142);
-    --secondary-foreground: oklch(0.285 0.03 152);
-    --muted: oklch(0.938 0.011 140);
-    --muted-foreground: oklch(0.505 0.018 150);
-    --accent: oklch(0.925 0.017 142);
-    --accent-foreground: oklch(0.26 0.028 152);
-    --destructive: oklch(0.545 0.192 30);
-    --ok: oklch(0.5 0.085 168);
-    --band: oklch(0.949 0.018 142);
-    --border: oklch(0.874 0.015 142);
-    --input: oklch(0.874 0.015 142);
-    --ring: oklch(0.5 0.085 168);
-    --chart-observed: oklch(0.36 0.045 155);
-    --chart-expected: oklch(0.7 0.024 148);
-    --radius: 0.25rem;
+  --background: oklch(0.975 0.006 132);
+  --foreground: oklch(0.235 0.022 152);
+  --card: oklch(0.993 0.003 130);
+  --card-foreground: oklch(0.235 0.022 152);
+  --popover: oklch(0.993 0.003 130);
+  --popover-foreground: oklch(0.235 0.022 152);
+  --primary: oklch(0.285 0.03 152);
+  --primary-foreground: oklch(0.975 0.006 132);
+  --secondary: oklch(0.932 0.014 142);
+  --secondary-foreground: oklch(0.285 0.03 152);
+  --muted: oklch(0.938 0.011 140);
+  --muted-foreground: oklch(0.505 0.018 150);
+  --accent: oklch(0.925 0.017 142);
+  --accent-foreground: oklch(0.26 0.028 152);
+  --destructive: oklch(0.545 0.192 30);
+  --ok: oklch(0.5 0.085 168);
+  --band: oklch(0.949 0.018 142);
+  --border: oklch(0.874 0.015 142);
+  --input: oklch(0.874 0.015 142);
+  --ring: oklch(0.5 0.085 168);
+  --chart-observed: oklch(0.36 0.045 155);
+  --chart-expected: oklch(0.7 0.024 148);
+  --radius: 0.25rem;
 }
 
 .dark {
-    --background: oklch(0.185 0.015 155);
-    --foreground: oklch(0.925 0.012 140);
-    --card: oklch(0.216 0.016 154);
-    --card-foreground: oklch(0.925 0.012 140);
-    --popover: oklch(0.232 0.017 154);
-    --popover-foreground: oklch(0.925 0.012 140);
-    --primary: oklch(0.9 0.03 142);
-    --primary-foreground: oklch(0.2 0.022 152);
-    --secondary: oklch(0.278 0.02 152);
-    --secondary-foreground: oklch(0.925 0.012 140);
-    --muted: oklch(0.256 0.018 152);
-    --muted-foreground: oklch(0.68 0.021 145);
-    --accent: oklch(0.29 0.022 152);
-    --accent-foreground: oklch(0.925 0.012 140);
-    --destructive: oklch(0.665 0.185 32);
-    --ok: oklch(0.76 0.105 168);
-    --band: oklch(0.243 0.019 153);
-    --border: oklch(1 0 0 / 11%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.76 0.105 168);
-    --chart-observed: oklch(0.84 0.04 145);
-    --chart-expected: oklch(0.46 0.022 150);
+  --background: oklch(0.185 0.015 155);
+  --foreground: oklch(0.925 0.012 140);
+  --card: oklch(0.216 0.016 154);
+  --card-foreground: oklch(0.925 0.012 140);
+  --popover: oklch(0.232 0.017 154);
+  --popover-foreground: oklch(0.925 0.012 140);
+  --primary: oklch(0.9 0.03 142);
+  --primary-foreground: oklch(0.2 0.022 152);
+  --secondary: oklch(0.278 0.02 152);
+  --secondary-foreground: oklch(0.925 0.012 140);
+  --muted: oklch(0.256 0.018 152);
+  --muted-foreground: oklch(0.68 0.021 145);
+  --accent: oklch(0.29 0.022 152);
+  --accent-foreground: oklch(0.925 0.012 140);
+  --destructive: oklch(0.665 0.185 32);
+  --ok: oklch(0.76 0.105 168);
+  --band: oklch(0.243 0.019 153);
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.76 0.105 168);
+  --chart-observed: oklch(0.84 0.04 145);
+  --chart-expected: oklch(0.46 0.022 150);
 }
 
 @theme inline {
-    --font-sans: 'Public Sans Variable', ui-sans-serif, system-ui, sans-serif;
-    --font-display: 'Archivo Variable', 'Public Sans Variable', sans-serif;
-    /* No monospace face: figures align on Public Sans' tabular numerals instead. */
-    --font-mono: var(--font-sans);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-band: var(--band);
-    --color-destructive: var(--destructive);
-    --color-ok: var(--ok);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
-    --color-background: var(--background);
-    --color-chart-observed: var(--chart-observed);
-    --color-chart-expected: var(--chart-expected);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.6);
-    --radius-2xl: calc(var(--radius) * 2);
-    --radius-3xl: calc(var(--radius) * 2.4);
-    --radius-4xl: calc(var(--radius) * 3);
+  --font-sans: "Public Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Archivo Variable", "Public Sans Variable", sans-serif;
+  /* No monospace face: figures align on Public Sans' tabular numerals instead. */
+  --font-mono: var(--font-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-band: var(--band);
+  --color-destructive: var(--destructive);
+  --color-ok: var(--ok);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-chart-observed: var(--chart-observed);
+  --color-chart-expected: var(--chart-expected);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.6);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 2.4);
+  --radius-4xl: calc(var(--radius) * 3);
 }
 
 @layer base {
@@ -147,6 +147,16 @@
   }
 }
 
+/* The clerk's pen travelling down the margin of a filing under examination. */
+@keyframes ink-travel {
+  from {
+    background-position: 0 -100%;
+  }
+  to {
+    background-position: 0 200%;
+  }
+}
+
 @keyframes bar-rise {
   from {
     transform: scaleY(0);
@@ -170,10 +180,29 @@
   animation: bar-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 
+/* Docket rule: the margin mark that says how far a filing has got. */
+.ink-travel {
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--foreground) 35%,
+    var(--foreground) 65%,
+    transparent 100%
+  );
+  background-size: 100% 60%;
+  background-repeat: no-repeat;
+  animation: ink-travel 1.6s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .stamp-in,
   .row-in,
   .bar-rise {
+    animation: none;
+  }
+  /* The rule still has to read as "in hand", so it holds mid-stroke instead. */
+  .ink-travel {
+    background-position: 0 50%;
     animation: none;
   }
 }

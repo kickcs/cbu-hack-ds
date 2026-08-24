@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from ..ingest.register import bank_column, loan_amounts
+from ..ingest.register import amount_column, bank_column, loan_amounts
 from ..sampling import is_sample_sufficient
 from .base import AuditContext, Detector, EvidenceBlock, empty_evidence
 
@@ -35,11 +35,13 @@ def uniformity_test(digits: pd.Series) -> tuple[float, float]:
 class LastDigitUniformityDetector(Detector):
     name = "last_digit"
     advisory = True
+    requires = ("register",)
 
     def run(self, ctx: AuditContext) -> pd.DataFrame:
         rows = []
+        amounts = amount_column(ctx.register)
         for bank, g in ctx.register.groupby(bank_column(ctx.register)):
-            digits = last_digits(g["summa"])
+            digits = last_digits(g[amounts])
             if not is_sample_sufficient(len(digits)):
                 rows.append({"bank": str(bank), "score": 0.0, "flagged": False})
                 continue

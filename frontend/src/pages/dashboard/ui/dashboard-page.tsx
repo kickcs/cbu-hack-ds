@@ -1,15 +1,16 @@
 import { testColumns } from "@/entities/bank"
 import { RunAuditButton } from "@/features/run-audit"
 import { ThemeToggle } from "@/features/theme-toggle"
+import { Link } from "@/shared/lib/router"
+import { FILINGS_PATH } from "@/shared/lib/routes"
 import { AppHeader } from "@/widgets/app-header"
 import { AuditLede } from "@/widgets/audit-lede"
-import { BankDossier } from "@/widgets/bank-dossier"
 import { ExceptionMatrix } from "@/widgets/exception-matrix"
 
 import { useDashboard } from "../model/use-dashboard"
 
 export function DashboardPage() {
-  const { meta, rows, loading, selected, select, closeSelected } = useDashboard()
+  const { meta, rows, loading } = useDashboard()
 
   const banks = rows ?? []
   const flagged = banks.filter((row) => row.suspicious).length
@@ -17,6 +18,12 @@ export function DashboardPage() {
   return (
     <div className="min-h-svh bg-background text-foreground">
       <AppHeader>
+        <Link
+          to={FILINGS_PATH}
+          className="code mr-1 rounded-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+          Upload Report
+        </Link>
         <ThemeToggle />
         <RunAuditButton />
       </AppHeader>
@@ -30,14 +37,8 @@ export function DashboardPage() {
           loading={loading || !rows}
         />
 
-        <ExceptionMatrix
-          rows={banks}
-          loading={loading || !rows}
-          onSelect={select}
-        />
+        <ExceptionMatrix rows={banks} loading={loading || !rows} />
       </main>
-
-      <BankDossier audit={selected} onClose={closeSelected} />
     </div>
   )
 }

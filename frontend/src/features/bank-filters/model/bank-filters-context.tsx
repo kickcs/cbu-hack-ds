@@ -23,7 +23,9 @@ type BankFiltersState = {
   filter: (rows: BankAudit[]) => BankAudit[]
 }
 
-const BankFiltersContext = createContext<BankFiltersState | undefined>(undefined)
+const BankFiltersContext = createContext<BankFiltersState | undefined>(
+  undefined
+)
 
 export function BankFiltersProvider({ children }: { children: ReactNode }) {
   const [query, setQuery] = useState("")

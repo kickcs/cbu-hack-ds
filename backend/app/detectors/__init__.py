@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from .arithmetic import ARITHMETIC_RATIO, ArithmeticDetector
 from .balance import BALANCE_TOLERANCE, BalanceIdentityDetector
-from .base import AuditContext, Detector, EvidenceBlock
+from .base import AuditContext, Detector, EvidenceBlock, has_dataset, runnable
 from .functional import (
     detect_arithmetic,
     detect_balance,
@@ -74,7 +74,9 @@ __all__ = [
     "detect_rounding",
     "detect_threshold",
     "detect_window_dressing",
+    "has_dataset",
     "last_digits",
+    "runnable",
     "total_assets_series",
     "trailing_zeros",
 ]

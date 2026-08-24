@@ -30,7 +30,7 @@ def benford_detail(bank: str, service: ServiceDep) -> BenfordDetailOut:
     below the sample guard still gets its distribution back, with `sufficient=false` marking
     the verdict as withheld. An unknown bank yields an empty sample (`n=0`), not an error.
     """
-    ctx = service.load_data()
+    ctx = service.refresh()[0]
     values = loan_amounts(ctx.register, bank, exact=False)
 
     result = run_benford(values)
@@ -70,8 +70,7 @@ def bank_evidence(bank: str, service: ServiceDep) -> EvidenceOut:
     the verdict. A bank that triggered nothing, or a name that matches none, comes back with
     empty lists rather than a 404.
     """
-    ctx = service.load_data()
-    ranked = service.run_ranked(ctx)
+    ctx, ranked = service.refresh()
     target = next((a for a in ranked if a.bank.lower() == bank.lower()), None)
     if target is None:
         return EvidenceOut(bank=bank, reasons=[], blocks=[])

@@ -96,3 +96,12 @@ def map_indicator(name: str) -> str | None:
 
 def unknown_indicator_count() -> int:
     return len(_UNSEEN)
+
+
+def unknown_indicator_names() -> frozenset[str]:
+    """Indicator labels seen so far that no synonym or fuzzy match could place.
+
+    Process-wide, so a caller that wants the count for one file takes the difference
+    across its own load -- see `ingest.load_dataset`.
+    """
+    return frozenset(_UNSEEN)

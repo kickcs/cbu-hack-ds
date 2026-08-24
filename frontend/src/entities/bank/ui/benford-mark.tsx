@@ -10,7 +10,11 @@ const MAX = BENFORD_HEIGHTS[0]
 
 export function BenfordMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 98 62" aria-hidden className={cn("h-full w-auto", className)}>
+    <svg
+      viewBox="0 0 98 62"
+      aria-hidden
+      className={cn("h-full w-auto", className)}
+    >
       {BENFORD_HEIGHTS.map((h, i) => {
         const barHeight = (h / MAX) * 58
         return (

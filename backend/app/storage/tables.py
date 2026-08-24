@@ -1,4 +1,4 @@
-"""Database schema as SQLAlchemy models -- four tables, bitemporal by construction (TZ §7).
+"""Database schema as SQLAlchemy models -- five tables, bitemporal by construction (TZ §7).
 
 Two time axes are kept as separate columns everywhere, never conflated:
 - `period`      -- the reporting period the numbers describe (valid time);
@@ -57,6 +57,38 @@ class AuditRun(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     ran_at: Mapped[str] = mapped_column(String, nullable=False)
     config: Mapped[str | None] = mapped_column(Text)
+
+
+class Submission(Base):
+    """One uploaded report: the queue entry, and the audit it produced in isolation.
+
+    Isolation is the reason this table exists rather than more rows in `raw_files`: a
+    submission is audited against its own files only, so its verdicts can never mix with
+    the shared dataset's, and deleting it removes the whole report -- rows here plus the
+    directory under `Settings.upload_dir`.
+
+    The three JSON columns hold what the dashboard reads back: the files ingested, the
+    issues ingestion raised, and the ranked verdicts. They are written once, at the end of
+    the run, and are small (one submission covers a few dozen banks at most).
+    """
+
+    __tablename__ = "submissions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[str] = mapped_column(String, nullable=False)
+    started_at: Mapped[str | None] = mapped_column(String)
+    finished_at: Mapped[str | None] = mapped_column(String)
+    files_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    issues_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    result_json: Mapped[str | None] = mapped_column(Text)
+    skipped_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
+    error: Mapped[str | None] = mapped_column(Text)
+    total_banks: Mapped[int | None] = mapped_column(Integer)
+    suspicious_count: Mapped[int | None] = mapped_column(Integer)
+
+    __table_args__ = (Index("idx_submission_status", "status"),)
 
 
 class AuditResult(Base):

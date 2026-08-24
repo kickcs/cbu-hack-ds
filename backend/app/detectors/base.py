@@ -38,6 +38,11 @@ class Detector(ABC):
     # Advisory detectors run and are shown in the dashboard, but never contribute
     # to `reason`/`composite` -- the deciding verdict set stays autocheck-verified.
     advisory: ClassVar[bool] = False
+    # Which AuditContext frames `run` dereferences. A submission uploaded through the
+    # dashboard may carry only one of the three datasets, and a detector whose input is
+    # absent must be skipped and reported as skipped -- not crash, and not score zero,
+    # which would read as "tested, nothing found".
+    requires: ClassVar[tuple[str, ...]] = ("report",)
 
     @abstractmethod
     def run(self, ctx: AuditContext) -> pd.DataFrame:
@@ -50,3 +55,14 @@ class Detector(ABC):
 
 def bank_report(report: pd.DataFrame, bank: str) -> pd.DataFrame:
     return report[report["bank"] == bank]
+
+
+def has_dataset(ctx: AuditContext, name: str) -> bool:
+    """True when `ctx` carries a usable frame under `name` (present and non-empty)."""
+    frame = getattr(ctx, name, None)
+    return frame is not None and not frame.empty
+
+
+def runnable(detectors: tuple[Detector, ...], ctx: AuditContext) -> tuple[Detector, ...]:
+    """The detectors whose required datasets are all present in `ctx`."""
+    return tuple(d for d in detectors if all(has_dataset(ctx, name) for name in d.requires))

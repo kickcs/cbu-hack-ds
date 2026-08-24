@@ -16,8 +16,14 @@ export {
   latestAuditQuery,
 } from "./api/bank-queries"
 export type { TestCell } from "./lib/test-columns"
-export { BENFORD_TEST, testCell, testCells, testColumns } from "./lib/test-columns"
+export {
+  BENFORD_TEST,
+  testCell,
+  testCells,
+  testColumns,
+} from "./lib/test-columns"
 export { evidenceColumnHead, fmtEvidenceCell } from "./lib/format-evidence"
+export { chiReading, madReading, verdictLine } from "./lib/verdict"
 export { BenfordMark } from "./ui/benford-mark"
 export { BenfordPlot } from "./ui/benford-plot"
 export { ExceptionCell } from "./ui/exception-cell"

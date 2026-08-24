@@ -18,9 +18,7 @@ export function ThemeToggle() {
       title="Switch theme (D)"
     >
       {dark ? <SunIcon /> : <MoonIcon />}
-      <span className="sr-only">
-        Switch to {dark ? "light" : "dark"} theme
-      </span>
+      <span className="sr-only">Switch to {dark ? "light" : "dark"} theme</span>
     </Button>
   )
 }

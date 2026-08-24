@@ -6,10 +6,10 @@ export const apiClient = axios.create({
 })
 
 export function apiErrorMessage(error: unknown): string {
-  if (!axios.isAxiosError(error)) return "Неизвестная ошибка"
+  if (!axios.isAxiosError(error)) return "Something went wrong"
 
   if (error.code === "ERR_NETWORK" || error.code === "ECONNABORTED") {
-    return "Бэкенд недоступен — проверьте, что он запущен на :8000"
+    return "The API is not answering — check that it is running on :8000"
   }
 
   const detail = (error.response?.data as { detail?: unknown } | undefined)

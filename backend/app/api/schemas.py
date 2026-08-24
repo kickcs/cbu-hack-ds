@@ -79,6 +79,57 @@ class MetaOut(BaseModel):
     report_rows: int = Field(description="Canonical indicator values parsed from the reports.")
 
 
+class IssueOut(BaseModel):
+    """One remark ingestion made about a submitted file."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    level: str = Field(description="`error` blocked the file, `warning` was worked around.")
+    code: str
+    message: str = Field(description="Russian text, shown as written.")
+    file: str | None = None
+    count: int | None = Field(default=None, description="Rows affected, when it is a tally.")
+
+
+class SubmissionFileOut(BaseModel):
+    """One file of a submission and what ingestion made of it."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    name: str
+    format: str
+    size: int
+    sha256: str
+    role: str = Field(description="register | normativ | report | unknown.")
+    role_label: str = Field(description="Readable name of the role, for the dashboard.")
+    rows: int = Field(description="Rows this file contributed after validation.")
+
+
+class SubmissionOut(BaseModel):
+    """An uploaded report: its place in the queue and, once processed, its verdict."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    status: str = Field(description="queued | processing | done | failed.")
+    created_at: str
+    started_at: str | None = None
+    finished_at: str | None = None
+    files: list[SubmissionFileOut]
+    issues: list[IssueOut] = Field(description="What had to be dropped, assumed or refused.")
+    skipped: list[str] = Field(description="Tests with no input in this submission.")
+    error: str | None = Field(default=None, description="Why it failed, in Russian.")
+    total_banks: int | None = None
+    suspicious_count: int | None = None
+
+
+class SubmissionDetailOut(SubmissionOut):
+    """A submission together with the ranking it produced."""
+
+    results: list[BankAuditOut] = Field(description="Ranked verdicts of this report alone.")
+
+
 class AuditRunSummaryOut(BaseModel):
     """What a persisted audit run produced."""
 

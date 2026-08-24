@@ -1,9 +1,11 @@
 """The audit pipeline as one object, shared by the API and the CLI.
 
 `AuditService` is the only place that knows the order of operations -- load, audit, rank,
-persist, write -- so the two entry points cannot drift apart. It holds no state between
-calls: the dataset is re-read on every request, because the day-2 dataset may be swapped on
-disk while the service is running.
+persist, write -- so the two entry points cannot drift apart. The dataset is read from disk
+and audited once per dataset on disk: the dashboard asks for the same ranking on every
+visit, and re-parsing the report files (openpyxl/XML) plus re-running every detector per
+page load took seconds. The result is memoized on a cheap fingerprint of the data files, so
+swapping the day-2 dataset invalidates it automatically (see `refresh`).
 """
 from __future__ import annotations
 
@@ -21,6 +23,9 @@ class AuditService:
 
     def __init__(self, settings: Settings):
         self._settings = settings
+        self._fingerprint: tuple[tuple[str, int, int], ...] | None = None
+        self._ctx: AuditContext | None = None
+        self._ranked: list[BankAudit] | None = None
 
     @property
     def settings(self) -> Settings:
@@ -38,6 +43,34 @@ class AuditService:
     def run_ranked(self, ctx: AuditContext) -> list[BankAudit]:
         """Run every test over every bank, most suspicious first."""
         return audit.rank_banks(audit.audit_all(ctx.register, ctx.normativ, ctx.report))
+
+    def refresh(self) -> tuple[AuditContext, list[BankAudit]]:
+        """Load and audit the dataset, but only once per dataset on disk.
+
+        The result is deterministic for a given set of files, so it is cached on a cheap
+        signature -- file path, mtime and size per source file. A changed dataset (the
+        day-2 swap) changes the signature and forces a fresh run.
+        """
+        fingerprint = self._data_fingerprint()
+        if fingerprint != self._fingerprint or self._ranked is None:
+            ctx = self.load_data()
+            self._fingerprint = fingerprint
+            self._ctx = ctx
+            self._ranked = self.run_ranked(ctx)
+        return self._ctx, self._ranked
+
+    def _data_fingerprint(self) -> tuple[tuple[str, int, int], ...]:
+        """Cheap signature of the dataset on disk: (path, mtime_ns, size) per file."""
+        paths: dict = {}
+        for path in ingest.iter_data_files(self._settings.data_dir):
+            paths.setdefault(path, None)
+        for name in ("kredit_reyestri.csv", "normativlar.csv"):
+            path = self._settings.data_dir / name
+            if path.is_file():
+                paths.setdefault(path, None)
+        return tuple(
+            sorted((str(p), p.stat().st_mtime_ns, p.stat().st_size) for p in paths)
+        )
 
     def write_result_csv(self, ranked: list[BankAudit]) -> pd.DataFrame:
         """Write the suspicious banks to both spec variants of the result file."""

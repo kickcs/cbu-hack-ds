@@ -7,6 +7,7 @@ reader and registering its extension in READERS -- nothing else changes.
 from __future__ import annotations
 
 import logging
+import math
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -15,7 +16,9 @@ from typing import Callable
 import openpyxl
 import pandas as pd
 
+from .classify import BANK_COLUMNS, INDICATOR_COLUMNS, PERIOD_COLUMNS
 from .indicators import map_indicator
+from .tabular import parse_amount, read_csv_any, resolve_column
 
 log = logging.getLogger(__name__)
 
@@ -33,25 +36,27 @@ def period_key(period: str) -> str:
 
 
 def _record(bank: str, period: str, name: object, tip: object, summa: object) -> ReportRecord | None:
+    """One canonical line, or None when the indicator or the amount is unusable."""
     canon = map_indicator(str(name))
-    if canon is None:
+    amount = parse_amount(summa)
+    if canon is None or amount is None or not math.isfinite(amount):
         return None
     return {
-        "bank": str(bank),
+        "bank": str(bank).strip(),
         "period": period_key(period),
         "indicator": canon,
         "tip": str(tip),
-        "summa": float(summa),
+        "summa": amount,
     }
 
 
 def read_csv_report(path: Path) -> list[ReportRecord]:
-    df = pd.read_csv(path)
-    col_bank = next((c for c in ("bank_nomi", "bank") if c in df.columns), None)
-    col_period = next((c for c in ("hisobot_oyi", "oy") if c in df.columns), None)
-    col_name = next((c for c in ("korsatkich_nomi", "korsatkich") if c in df.columns), None)
-    col_tip = next((c for c in ("turi", "tip") if c in df.columns), None)
-    col_sum = next((c for c in ("summa_som", "summa") if c in df.columns), None)
+    df = read_csv_any(path)
+    col_bank = resolve_column(df, BANK_COLUMNS)
+    col_period = resolve_column(df, PERIOD_COLUMNS)
+    col_name = resolve_column(df, INDICATOR_COLUMNS)
+    col_tip = resolve_column(df, ("turi", "tip", "тип"))
+    col_sum = resolve_column(df, ("summa som", "summa", "сумма", "amount"))
     if not all([col_bank, col_period, col_name, col_sum]):
         log.info("ingest: skipping %s (no report columns)", path.name)
         return []

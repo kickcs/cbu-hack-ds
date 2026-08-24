@@ -15,39 +15,50 @@ from __future__ import annotations
 
 import pandas as pd
 
-from ..detectors import ADVISORY, DETECTORS, AuditContext
-from ..domain import BankAudit
+from ..detectors import ADVISORY, DETECTORS, AuditContext, Detector, runnable
+from ..domain import BankAudit, BenfordResult
 from .benford_test import BENFORD_THRESHOLD, benford_by_bank
 
 BENFORD_REASON = "benford"
 """Name the Benford test carries in `reason`; detectors use their own `name`."""
 
 
-def _detector_tables(ctx: AuditContext) -> dict[str, dict[str, tuple[bool, float]]]:
+def _detector_tables(
+    ctx: AuditContext, detectors: tuple[Detector, ...]
+) -> dict[str, dict[str, tuple[bool, float]]]:
     """Run every detector once: {detector name: {bank: (flagged, score)}}, registry order."""
     return {
         detector.name: {
             str(row["bank"]): (bool(row["flagged"]), float(row["score"]))
             for _, row in detector.run(ctx).iterrows()
         }
-        for detector in DETECTORS
+        for detector in detectors
     }
 
 
 def audit_all(
-    register: pd.DataFrame,
-    normativ: pd.DataFrame,
-    report: pd.DataFrame,
+    register: pd.DataFrame | None,
+    normativ: pd.DataFrame | None,
+    report: pd.DataFrame | None,
     mad_threshold: float = BENFORD_THRESHOLD,
+    detectors: tuple[Detector, ...] = DETECTORS,
 ) -> list[BankAudit]:
-    """Run every test over all banks and return one audit result per bank."""
-    benford_results = benford_by_bank(register, mad_threshold)
+    """Run every applicable test over all banks and return one audit result per bank.
+
+    A detector whose dataset is missing is dropped rather than run against nothing: an
+    uploaded submission may hold only the register, or only the aggregate report, and a
+    test that never ran must not be recorded as a test that found nothing. The bank
+    universe is the union over the datasets present, so a report-only submission still
+    yields one result per bank in it.
+    """
     ctx = AuditContext(register=register, normativ=normativ, report=report)
-    detector_tables = _detector_tables(ctx)
+    benford_results = benford_by_bank(register, mad_threshold)
+    detector_tables = _detector_tables(ctx, runnable(detectors, ctx))
+    banks = set(benford_results).union(*(t.keys() for t in detector_tables.values()), set())
 
     audits: list[BankAudit] = []
-    for bank in sorted(benford_results, key=str.lower):
-        benford_result = benford_results[bank]
+    for bank in sorted(banks, key=str.lower):
+        benford_result = benford_results.get(bank) or BenfordResult(sufficient=False)
         audit = BankAudit(bank=bank, benford=benford_result)
 
         for name, table in detector_tables.items():

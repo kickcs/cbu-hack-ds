@@ -15,6 +15,8 @@ import {
   useBankFilters,
 } from "@/features/bank-filters"
 import { fmt } from "@/shared/lib/format"
+import { Link, useNavigate } from "@/shared/lib/router"
+import { bankPath } from "@/shared/lib/routes"
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
 import { Skeleton } from "@/shared/ui/skeleton"
@@ -22,21 +24,32 @@ import { Skeleton } from "@/shared/ui/skeleton"
 type Props = {
   rows: BankAudit[]
   loading: boolean
-  onSelect: (audit: BankAudit) => void
+  /** When false, bank rows are plain text instead of links to the case file. */
+  navigable?: boolean
+  caption?: string
 }
 
 /**
  * One row per bank, one column per test: the whole supervisory picture in a
  * single read. Solid cells are findings, tinted cells are near misses.
  */
-export function ExceptionMatrix({ rows, loading, onSelect }: Props) {
+export function ExceptionMatrix({
+  rows,
+  loading,
+  navigable = true,
+  caption,
+}: Props) {
   const tests = useMemo(() => testColumns(rows), [rows])
 
   return (
     <BankFiltersProvider>
       <section className="overflow-hidden rounded-lg border bg-card">
-        <Toolbar />
-        {loading ? <LoadingRows /> : <Matrix rows={rows} tests={tests} onSelect={onSelect} />}
+        <Toolbar caption={caption} />
+        {loading ? (
+          <LoadingRows />
+        ) : (
+          <Matrix rows={rows} tests={tests} navigable={navigable} />
+        )}
         <footer className="border-t px-4 py-3">
           <p className="eyebrow mb-2">Tests — press to narrow the matrix</p>
           <TestLegend tests={tests} />
@@ -46,12 +59,12 @@ export function ExceptionMatrix({ rows, loading, onSelect }: Props) {
   )
 }
 
-function Toolbar() {
+function Toolbar({ caption }: { caption?: string }) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-3 border-b px-4 py-3">
       <div>
         <h2 className="font-display text-sm font-semibold tracking-tight">
-          Exception matrix
+          {caption ?? "Exception matrix"}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Ranked by composite score, worst first
@@ -78,8 +91,12 @@ function LoadingRows() {
 function Matrix({
   rows,
   tests,
-  onSelect,
-}: Omit<Props, "loading"> & { tests: string[] }) {
+  navigable,
+}: {
+  rows: BankAudit[]
+  tests: string[]
+  navigable: boolean
+}) {
   const { filter, active, clear } = useBankFilters()
 
   const visible = useMemo(() => filter(rows), [filter, rows])
@@ -148,7 +165,7 @@ function Matrix({
               row={row}
               rank={i + 1}
               tests={tests}
-              onSelect={onSelect}
+              navigable={navigable}
             />
           ))}
         </tbody>
@@ -184,21 +201,25 @@ function Row({
   row,
   rank,
   tests,
-  onSelect,
+  navigable,
 }: {
   row: BankAudit
   rank: number
   tests: string[]
-  onSelect: (audit: BankAudit) => void
+  navigable: boolean
 }) {
+  const navigate = useNavigate()
   const cells = testCells(row, tests)
   const fired = cells.filter((c) => c.flagged)
 
   return (
     <tr
-      onClick={() => onSelect(row)}
+      onClick={navigable ? () => navigate(bankPath(row.bank)) : undefined}
       style={{ animationDelay: `${Math.min(rank, 14) * 22}ms` }}
-      className="row-in cursor-pointer border-b border-border/60 transition-colors last:border-b-0 hover:bg-accent"
+      className={cn(
+        "row-in border-b border-border/60 transition-colors last:border-b-0",
+        navigable && "cursor-pointer hover:bg-accent"
+      )}
     >
       <td
         className={cn(
@@ -210,16 +231,17 @@ function Row({
       </td>
 
       <td className="py-1.5 pr-3">
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onSelect(row)
-          }}
-          className="rounded-sm text-left font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-        >
-          {row.bank}
-        </button>
+        {navigable ? (
+          <Link
+            to={bankPath(row.bank)}
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-sm font-medium hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            {row.bank}
+          </Link>
+        ) : (
+          <span className="font-medium">{row.bank}</span>
+        )}
         {fired.length > 0 && (
           <span className="mt-1 flex flex-wrap gap-1 md:hidden">
             {fired.map((cell) => (
@@ -250,12 +272,18 @@ function Row({
       ))}
 
       <td
+        title={
+          row.benford.sufficient
+            ? undefined
+            : "Fewer than 300 loans — the reading is withheld, not reported."
+        }
         className={cn(
           "px-2 py-1.5 text-right tabular-nums",
           row.benford.flagged && "font-medium text-destructive"
         )}
       >
-        {fmt(row.benford.mad)}
+        {/* A MAD off too small a sample is not a number to read, so it is not printed. */}
+        {row.benford.sufficient ? fmt(row.benford.mad) : "—"}
       </td>
 
       <td className="hidden px-2 py-1.5 text-right text-muted-foreground tabular-nums sm:table-cell">

@@ -27,8 +27,8 @@ def run_audit(service: ServiceDep, settings: SettingsDep) -> AuditRunSummaryOut:
     rows under different column names. This is the endpoint that produces the deliverable;
     use `GET /api/audit/latest` to look at results without writing anything.
     """
-    ctx = service.load_data()
-    ranked = service.run_ranked(ctx)
+    ctx = service.refresh()[0]
+    ranked = service.refresh()[1]
     run_id = service.persist_run(ctx, ranked)
     service.write_result_csv(ranked)
     return AuditRunSummaryOut(
@@ -56,4 +56,4 @@ def latest(service: ServiceDep) -> list[BankAuditOut]:
     Each entry carries the full Benford result plus every detector's flag and score, advisory
     detectors included; `reason` lists only the tests that actually decided the verdict.
     """
-    return service.run_ranked(service.load_data())
+    return service.refresh()[1]

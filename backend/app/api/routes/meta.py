@@ -28,7 +28,7 @@ def meta(service: ServiceDep) -> MetaOut:
     clean. The dataset is re-read on every call, so swapping the files on disk is enough to
     refresh this.
     """
-    ctx = service.load_data()
+    ctx = service.refresh()[0]
     register = ctx.register
     return MetaOut(
         banks=bank_names(register),

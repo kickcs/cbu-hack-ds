@@ -25,6 +25,7 @@ def _in_band(k1: float, limit: float) -> bool:
 
 class ThresholdClusteringDetector(Detector):
     name = "threshold"
+    requires = ("normativ",)
 
     def run(self, ctx: AuditContext) -> pd.DataFrame:
         rows = []

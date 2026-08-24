@@ -30,9 +30,7 @@ export function TestLegend({ tests }: { tests: string[] }) {
                 : "border-transparent text-muted-foreground hover:bg-accent/60 hover:text-foreground"
             )}
           >
-            <span className="code">
-              {label.code}
-            </span>
+            <span className="code">{label.code}</span>
             <span>{label.name}</span>
           </button>
         )

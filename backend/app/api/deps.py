@@ -12,6 +12,7 @@ from fastapi import Depends, Request
 
 from ..config import Settings
 from ..service import AuditService
+from ..submissions import SubmissionService
 
 
 def get_service(request: Request) -> AuditService:
@@ -24,5 +25,11 @@ def get_settings(request: Request) -> Settings:
     return request.app.state.settings
 
 
+def get_submissions(request: Request) -> SubmissionService:
+    """Uploaded reports: the same intake queue for every request."""
+    return request.app.state.submissions
+
+
 ServiceDep = Annotated[AuditService, Depends(get_service)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
+SubmissionsDep = Annotated[SubmissionService, Depends(get_submissions)]

@@ -16,20 +16,23 @@ function signed(value: number) {
 
 type Props = {
   data: BenfordDetail["distribution"]
+  /** Taller plot for the case file, where the chart is the main exhibit. */
+  tall?: boolean
 }
 
 /**
  * Observed first digits as bars, each against a tick at the frequency Benford's
  * law predicts — a control chart, read as "how far is this bar off its mark".
  */
-export function BenfordPlot({ data }: Props) {
+export function BenfordPlot({ data, tall }: Props) {
+  const plotHeight = tall ? "h-64" : "h-44"
   const ceiling =
     Math.max(...data.flatMap((d) => [d.empirical, d.theoretical])) * 1.12
 
   return (
     <figure className="flex flex-col gap-2">
       <div className="flex gap-3">
-        <div className="relative h-44 w-9 shrink-0">
+        <div className={cn("relative w-9 shrink-0", plotHeight)}>
           {GRID_STEPS.map((step) => (
             <span
               key={step}
@@ -41,7 +44,7 @@ export function BenfordPlot({ data }: Props) {
           ))}
         </div>
 
-        <div className="relative h-44 min-w-0 flex-1">
+        <div className={cn("relative min-w-0 flex-1", plotHeight)}>
           {GRID_STEPS.map((step) => (
             <div
               key={step}
