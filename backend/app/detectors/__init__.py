@@ -35,12 +35,13 @@ from .functional import (
     detect_window_dressing,
 )
 from .growth import (
-    BREADTH_CUT,
     GROWTH_JUMP,
+    LINE_JUMP,
     DiscontinuityDetector,
     WindowDressingDetector,
     largest_jump,
 )
+from .shape import BREADTH_CUT, PC1_CUT, UNIFORMITY_CUT, ShapeVerdict, classify, fit_pc1
 from .last_digit import LAST_DIGIT_ALPHA, LastDigitUniformityDetector, last_digits
 from .registry import ADVISORY, BY_NAME, DETECTORS
 from .rounding import ROUNDING_FRACTION, ROUNDING_TRAILING_ZEROS, RoundingDetector, trailing_zeros
@@ -53,6 +54,10 @@ __all__ = [
     "BY_NAME",
     "DETECTORS",
     "BREADTH_CUT",
+    "LINE_JUMP",
+    "PC1_CUT",
+    "ShapeVerdict",
+    "UNIFORMITY_CUT",
     "GROWTH_JUMP",
     "LAST_DIGIT_ALPHA",
     "ROUNDING_FRACTION",

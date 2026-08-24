@@ -9,7 +9,9 @@ sharply -- and split on the *shape* of that move rather than on where it sits in
   (cash, retail deposits) and leaves the rest flat, so the median line barely moves while
   one or two spike -> `window_dressing`.
 
-That ratio -- median over max of the per-line changes -- is `breadth`. It is scale-free,
+The direction of that change vector is read three independent ways in `shape.py` --
+an order statistic (`breadth`), a fixed geometric reference (`uniformity`) and one learned
+from the panel by PCA (`pc1_alignment`) -- and the majority decides. All three are scale-free,
 computed inside a single bank-period, and independent of which period the jump lands in.
 
 The detection signal is the largest *per-line* change, not the change in total assets.
@@ -27,17 +29,12 @@ from typing import NamedTuple
 import pandas as pd
 
 from .base import AuditContext, Detector, EvidenceBlock, empty_evidence
+from .shape import ShapeVerdict, classify, fit_pc1
 
 LINE_JUMP = 0.15
 """Largest relative MoM move of any single balance line that counts as an event.
 
 Sample separation: clean banks peak at 0.060, flagged banks at 0.294 and 0.553.
-"""
-
-BREADTH_CUT = 0.20
-"""median/max of per-line changes: at or above -> level shift, below -> targeted spike.
-
-Sample separation: targeted spike 0.064, next lowest bank 0.236.
 """
 
 GROWTH_JUMP = LINE_JUMP  # backwards-compatible alias for the public package export
@@ -74,8 +71,21 @@ class Jump(NamedTuple):
     line: str
     line_change: float
     total_change: float
-    breadth: float
+    shape: ShapeVerdict
     changes: dict[str, float]
+
+
+def change_panel(report: pd.DataFrame, items: list[str]) -> list[list[float]]:
+    """Per-line relative changes for every bank-period -- the sample PC1 is fitted on."""
+    rows: list[list[float]] = []
+    for _, g in report.groupby("bank"):
+        wide = g.pivot_table(index="period", columns="indicator", values="summa", aggfunc="first")
+        present = [c for c in items if c in wide.columns]
+        if len(present) != len(items):
+            continue
+        changes = wide.sort_index()[items].pct_change().abs().dropna()
+        rows.extend(changes.to_numpy(dtype=float).tolist())
+    return rows
 
 
 def _pivot(report: pd.DataFrame, bank: str) -> pd.DataFrame:
@@ -85,7 +95,7 @@ def _pivot(report: pd.DataFrame, bank: str) -> pd.DataFrame:
     ).sort_index()
 
 
-def largest_jump(report: pd.DataFrame, bank: str) -> Jump | None:
+def largest_jump(report: pd.DataFrame, bank: str, pc1=None) -> Jump | None:
     """Period whose sharpest balance-line move is the largest, with that period's breadth."""
     wide = _pivot(report, bank)
     items = [c for c in BREADTH_ITEMS if c in wide.columns]
@@ -116,9 +126,18 @@ def largest_jump(report: pd.DataFrame, bank: str) -> Jump | None:
         line=str(row.idxmax()),
         line_change=peak,
         total_change=total_change,
-        breadth=float(row.median() / peak) if peak else 1.0,
+        shape=classify(row.to_numpy(dtype=float), pc1),
         changes={k: float(v) for k, v in row.items()},
     )
+
+
+def shape_note(shape: ShapeVerdict) -> str:
+    """One sentence on how the three shape metrics voted, for the evidence summary."""
+    parts = [f"breadth {shape.breadth:.2f}", f"uniformity {shape.uniformity:.2f}"]
+    if shape.pc1_alignment is not None:
+        parts.append(f"PC1 alignment {shape.pc1_alignment:.2f}")
+    agreement = "all agree" if shape.unanimous else f"{shape.votes} of {shape.voters} agree"
+    return f" Shape metrics: {', '.join(parts)} ({agreement})."
 
 
 class GrowthJumpDetector(Detector):
@@ -128,21 +147,25 @@ class GrowthJumpDetector(Detector):
     summary: str
 
     @abstractmethod
-    def _shape_matches(self, breadth: float) -> bool:
-        """Whether a jump of this breadth is the kind this detector reports."""
+    def _shape_matches(self, shape: ShapeVerdict) -> bool:
+        """Whether a move of this shape is the kind this detector reports."""
 
     def run(self, ctx: AuditContext) -> pd.DataFrame:
+        items = [c for c in BREADTH_ITEMS if c in set(ctx.report["indicator"])]
+        pc1 = fit_pc1(change_panel(ctx.report, items)) if items else None
         rows = []
         for bank in sorted(ctx.report["bank"].unique()):
             score, flagged = 0.0, False
-            jump = largest_jump(ctx.report, bank)
-            if jump is not None and jump.line_change > LINE_JUMP and self._shape_matches(jump.breadth):
+            jump = largest_jump(ctx.report, bank, pc1)
+            if jump is not None and jump.line_change > LINE_JUMP and self._shape_matches(jump.shape):
                 score, flagged = jump.line_change, True
             rows.append({"bank": bank, "score": score, "flagged": flagged})
         return pd.DataFrame(rows)
 
     def evidence(self, ctx: AuditContext, bank: str) -> EvidenceBlock:
-        jump = largest_jump(ctx.report, bank)
+        items = [c for c in BREADTH_ITEMS if c in set(ctx.report["indicator"])]
+        pc1 = fit_pc1(change_panel(ctx.report, items)) if items else None
+        jump = largest_jump(ctx.report, bank, pc1)
         if jump is None:
             return empty_evidence()
         transition = f"{jump.previous_period} → {jump.period}"
@@ -168,9 +191,10 @@ class GrowthJumpDetector(Detector):
             "summary": self.summary.format(
                 line=jump.line,
                 change=f"{jump.line_change:.1%}",
-                breadth=f"{jump.breadth:.2f}",
+                breadth=f"{jump.shape.breadth:.2f}",
                 period=jump.period,
-            ),
+            )
+            + shape_note(jump.shape),
             "rows": rows,
         }
 
@@ -185,8 +209,8 @@ class DiscontinuityDetector(GrowthJumpDetector):
         "with it (breadth {breadth}) -- a level shift rather than a single mis-stated figure."
     )
 
-    def _shape_matches(self, breadth: float) -> bool:
-        return breadth >= BREADTH_CUT
+    def _shape_matches(self, shape: ShapeVerdict) -> bool:
+        return not shape.concentrated
 
 
 class WindowDressingDetector(GrowthJumpDetector):
@@ -199,5 +223,5 @@ class WindowDressingDetector(GrowthJumpDetector):
         "(breadth {breadth}) -- the signature of inflating the figures a regulator reads."
     )
 
-    def _shape_matches(self, breadth: float) -> bool:
-        return breadth < BREADTH_CUT
+    def _shape_matches(self, shape: ShapeVerdict) -> bool:
+        return shape.concentrated
