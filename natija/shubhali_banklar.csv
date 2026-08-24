@@ -1,0 +1,7 @@
+bank,mad_qiymati,sabab
+Davr Bank,1.0,threshold|rounding
+Asaka Bank,1.0,threshold
+Hamkor Bank,0.209586,discontinuity
+Universal Bank,0.163352,window_dressing
+Aloqa Bank,0.053571,benford
+Kapital Bank,0.019438,arithmetic

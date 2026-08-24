@@ -1,0 +1,14 @@
+bank,format,buzilish,toza
+Milliy Bank,csv,yo'q,ha
+Sanoat Bank,xlsx,yo'q,ha
+Ipoteka Bank,xml,yo'q,ha
+Agro Bank,csv,yo'q,ha
+Xalq Banki,xlsx,yo'q,ha
+Aloqa Bank,xml,benford,yo'q
+Turon Bank,csv,yo'q,ha
+Asaka Bank,xlsx,threshold,yo'q
+Kapital Bank,xml,arithmetic,yo'q
+Hamkor Bank,csv,discontinuity,yo'q
+Trast Bank,xlsx,yo'q,ha
+Davr Bank,xml,rounding|threshold,yo'q
+Universal Bank,csv,window_dressing,yo'q

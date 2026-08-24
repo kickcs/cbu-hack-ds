@@ -1,0 +1,11 @@
+node_modules
+dist
+__pycache__
+*.pyc
+.venv
+.venv*/
+regtech.db
+*.sqlite
+*.sqlite3
+.DS_Store
+.pytest_cache

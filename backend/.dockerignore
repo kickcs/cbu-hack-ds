@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+data/
+regtech.db
+.pytest_cache/

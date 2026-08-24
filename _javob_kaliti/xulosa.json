@@ -1,0 +1,27 @@
+{
+  "bank": 13,
+  "oy": 6,
+  "csv_qator": 390,
+  "xlsx_fayl": 4,
+  "buzuq_bank": 6,
+  "buzilish_taqsimoti": {
+    "benford": 1,
+    "rounding": 1,
+    "threshold": 2,
+    "arithmetic": 1,
+    "discontinuity": 1,
+    "window_dressing": 1
+  },
+  "baholash": [
+    "1) Ingestion: uchala format ham kanonik modelga tushdimi (qo'lda tekshiriladi).",
+    "2) Aniqlash: buzuq banklar ro'yxati — precision/recall.",
+    "3) Turini to'g'ri aytish: har bir bank uchun buzilish turi mos kelganmi.",
+    "4) False positive narxi yuqori: toza bankni buzuq deb belgilash −2 ball."
+  ],
+  "kredit_reyestri_qator": 26726,
+  "eslatma": [
+    "Benford testini AGREGAT hisobotda o'tkazish mumkin emas — u yerda bank boshiga atigi 78 ta son bor (n < 300). Test kredit_reyestri.csv da o'tkazilishi kerak (bank boshiga 1400–2600 qator). Buni tushunmagan jamoa shovqinni signal deb o'qiydi va hamma bankni shubhali deb belgilaydi.",
+    "threshold buzilishi normativlar.csv da: K1 13% chegarasidan sal yuqorida (13.01–13.45%) g'ayritabiiy to'planish.",
+    "arithmetic/discontinuity/window_dressing buzilishlari agregat hisobotda."
+  ]
+}
