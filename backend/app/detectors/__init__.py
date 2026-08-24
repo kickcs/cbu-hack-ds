@@ -35,10 +35,11 @@ from .functional import (
     detect_window_dressing,
 )
 from .growth import (
+    BREADTH_CUT,
     GROWTH_JUMP,
     DiscontinuityDetector,
     WindowDressingDetector,
-    total_assets_series,
+    largest_jump,
 )
 from .last_digit import LAST_DIGIT_ALPHA, LastDigitUniformityDetector, last_digits
 from .registry import ADVISORY, BY_NAME, DETECTORS
@@ -51,6 +52,7 @@ __all__ = [
     "BALANCE_TOLERANCE",
     "BY_NAME",
     "DETECTORS",
+    "BREADTH_CUT",
     "GROWTH_JUMP",
     "LAST_DIGIT_ALPHA",
     "ROUNDING_FRACTION",
@@ -75,6 +77,6 @@ __all__ = [
     "detect_threshold",
     "detect_window_dressing",
     "last_digits",
-    "total_assets_series",
+    "largest_jump",
     "trailing_zeros",
 ]

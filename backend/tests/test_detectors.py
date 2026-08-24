@@ -60,48 +60,142 @@ def test_rounding_detects_rounded_values():
 
 
 def test_arithmetic_detects_jami_component_mismatch():
-    report = pd.DataFrame(
-        {
-            "bank": ["A"] * 4 + ["B"] * 4,
-            "period": ["2026-01"] * 8,
-            "indicator": ["kredit_portfeli", "kredit_zaxirasi", "jami_aktivlar", "jami_passivlar"] * 2,
-            "tip": ["aktiv", "aktiv", "aktiv", "passiv"] * 2,
-            "summa": [100, -10, 100, 90, 100, -10, 90, 90],  # A inconsistent, B consistent
-        }
-    )
-    rows = det.detect_arithmetic(report)
-    flags = dict(zip(rows["bank"], rows["flagged"]))
+    """A's total overstates its components; B's foots. Both carry the full component set,
+    which is what the detector requires before it will judge a period."""
+    components = [
+        ("naqd_pullar", 20.0),
+        ("banklararo_joylashtirishlar", 20.0),
+        ("kredit_portfeli", 30.0),
+        ("kredit_zaxirasi", -10.0),
+        ("qimmatli_qogozlar", 15.0),
+        ("asosiy_vositalar", 15.0),
+    ]  # sums to 90
+    rows = []
+    for bank, total in (("A", 100.0), ("B", 90.0)):
+        for indicator, value in components:
+            rows.append({"bank": bank, "period": "2026-01", "indicator": indicator,
+                         "tip": "aktiv", "summa": value})
+        rows.append({"bank": bank, "period": "2026-01", "indicator": "jami_aktivlar",
+                     "tip": "aktiv", "summa": total})
+        rows.append({"bank": bank, "period": "2026-01", "indicator": "jami_passivlar",
+                     "tip": "passiv", "summa": 90.0})
+
+    result = det.detect_arithmetic(pd.DataFrame(rows))
+    flags = dict(zip(result["bank"], result["flagged"]))
     assert flags["A"] and not flags["B"]
 
 
-def test_discontinuity_detects_mid_series_jump():
-    report = pd.DataFrame(
-        {
-            "bank": ["A"] * 6 + ["B"] * 6,
-            "period": ["2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"] * 2,
-            "indicator": ["jami_aktivlar"] * 12,
-            "tip": ["aktiv"] * 12,
-            "summa": [100, 101, 102, 103, 150, 151] + [100, 101, 102, 103, 104, 105],
-        }
-    )
-    rows = det.detect_discontinuity(report)
-    flags = dict(zip(rows["bank"], rows["flagged"]))
-    assert flags["A"] and not flags["B"]
+PERIODS = ["2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"]
+
+_ASSET_COMPONENTS = (
+    "naqd_pullar",
+    "banklararo_joylashtirishlar",
+    "kredit_portfeli",
+    "kredit_zaxirasi",
+    "qimmatli_qogozlar",
+    "asosiy_vositalar",
+)
+_PASSIVE_LINES = (
+    "depozitlar_aholi",
+    "depozitlar_yuridik",
+    "banklararo_qarzlar",
+    "chiqarilgan_qimmatli_qogozlar",
+)
 
 
-def test_window_dressing_detects_last_period_jump():
-    report = pd.DataFrame(
-        {
-            "bank": ["A"] * 6 + ["B"] * 6,
-            "period": ["2025-10", "2025-11", "2025-12", "2026-01", "2026-02", "2026-03"] * 2,
-            "indicator": ["jami_aktivlar"] * 12,
-            "tip": ["aktiv"] * 12,
-            "summa": [100, 101, 102, 103, 104, 150] + [100, 101, 102, 103, 104, 105],
-        }
-    )
-    rows = det.detect_window_dressing(report)
-    flags = dict(zip(rows["bank"], rows["flagged"]))
-    assert flags["A"] and not flags["B"]
+def build_report(bank: str, totals: list[float], spike_lines: tuple[str, ...] | None = None,
+                 spike_period: str | None = None, spike_factor: float = 1.0) -> pd.DataFrame:
+    """Report where every line tracks the total, except named lines in one period.
+
+    `spike_lines=None` makes every line move with the total -- a level shift. Naming a
+    couple of lines and a factor concentrates the move in them, leaving the rest flat.
+    """
+    rows = []
+    for period, total in zip(PERIODS, totals):
+        base = totals[0]
+        for indicator in _ASSET_COMPONENTS + _PASSIVE_LINES:
+            if spike_lines is None:
+                value = total / 6
+            elif indicator in spike_lines and period == spike_period:
+                value = base / 6 * spike_factor
+            else:
+                value = base / 6
+            rows.append({"bank": bank, "period": period, "indicator": indicator,
+                         "tip": "aktiv" if indicator in _ASSET_COMPONENTS else "passiv",
+                         "summa": value})
+        rows.append({"bank": bank, "period": period, "indicator": "jami_aktivlar",
+                     "tip": "aktiv", "summa": total})
+    return pd.DataFrame(rows)
+
+
+def test_discontinuity_detects_broad_level_shift():
+    """Every line moves together -> a level shift, not window dressing."""
+    report = pd.concat([
+        build_report("A", [100, 101, 102, 103, 150, 151]),
+        build_report("B", [100, 101, 102, 103, 104, 105]),
+    ])
+    disc = dict(zip(*det.detect_discontinuity(report)[["bank", "flagged"]].values.T))
+    window = dict(zip(*det.detect_window_dressing(report)[["bank", "flagged"]].values.T))
+    assert disc["A"] and not disc["B"]
+    assert not window["A"]
+
+
+def test_window_dressing_detects_targeted_spike():
+    """Only cash and retail deposits move -> targeted inflation, not a level shift."""
+    report = pd.concat([
+        build_report("A", [100, 101, 102, 103, 104, 150],
+                     spike_lines=("naqd_pullar", "depozitlar_aholi"),
+                     spike_period="2026-03", spike_factor=4.0),
+        build_report("B", [100, 101, 102, 103, 104, 105]),
+    ])
+    disc = dict(zip(*det.detect_discontinuity(report)[["bank", "flagged"]].values.T))
+    window = dict(zip(*det.detect_window_dressing(report)[["bank", "flagged"]].values.T))
+    assert window["A"] and not window["B"]
+    assert not disc["A"]
+
+
+def test_growth_label_does_not_depend_on_window_length():
+    """The same spike keeps its label whether or not later periods are present.
+
+    Regression test for the positional rule this replaced: defining window dressing as
+    "a jump into the last period" relabelled a bank when the reporting window was cut
+    short (DECISIONS.md §9.2).
+    """
+    full = pd.concat([
+        build_report("A", [100, 101, 102, 150, 151, 152]),
+        build_report("B", [100, 101, 102, 103, 104, 105]),
+    ])
+    truncated = full[full["period"].isin(PERIODS[:4])]
+
+    for report in (full, truncated):
+        disc = dict(zip(*det.detect_discontinuity(report)[["bank", "flagged"]].values.T))
+        window = dict(zip(*det.detect_window_dressing(report)[["bank", "flagged"]].values.T))
+        assert disc["A"], "level shift must stay a discontinuity in both windows"
+        assert not window["A"]
+
+
+def test_arithmetic_skips_period_with_unmapped_component():
+    """A component ingestion could not map must not read as a fabricated total.
+
+    Dropping a line shrinks the component sum by its whole value, which is
+    indistinguishable from a mis-stated total -- and accusing a clean bank costs points,
+    so an incomplete period yields no verdict (DECISIONS.md §9.1).
+    """
+    clean = build_report("A", [100, 101, 102, 103, 104, 105])
+    # totals foot exactly: six components of total/6 each
+    assert not det.detect_arithmetic(clean)["flagged"].any()
+
+    lost = clean[~((clean["indicator"] == "qimmatli_qogozlar") & (clean["period"] == "2026-01"))]
+    assert not det.detect_arithmetic(lost)["flagged"].any()
+
+
+def test_arithmetic_still_flags_a_complete_but_wrong_total():
+    """The guard must not silence a real mismatch when every component is present."""
+    report = build_report("A", [100, 101, 102, 103, 104, 105])
+    wrong = report.copy()
+    mask = (wrong["indicator"] == "jami_aktivlar") & (wrong["period"] == "2026-01")
+    wrong.loc[mask, "summa"] = wrong.loc[mask, "summa"] * 1.2
+    assert det.detect_arithmetic(wrong)["flagged"].any()
 
 
 def test_last_digit_detects_rounded_amounts():

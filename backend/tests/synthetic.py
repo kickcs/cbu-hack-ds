@@ -31,6 +31,9 @@ _AKTIV = ["naqd_pullar", "banklararo_joylashtirishlar", "kredit_portfeli",
 _PASSIV = ["depozitlar_aholi", "depozitlar_yuridik", "banklararo_qarzlar",
            "chiqarilgan_qimmatli_qogozlar", "kapital"]
 
+_DRESSED_LINES = ("naqd_pullar", "depozitlar_aholi")
+"""Lines window dressing inflates: the liquidity a regulator reads at the reporting date."""
+
 
 def _first_digit_amount(d: int, rng: np.random.Generator) -> int:
     k = int(rng.integers(6, 10))
@@ -115,18 +118,26 @@ def gen_report(banks: list[str], corruption: dict[str, str], rng: np.random.Gene
     for bank in banks:
         base = _base_components(rng)
         growth = [1.0 + rng.uniform(0.01, 0.04) for _ in PERIODS]
-        # discontinuity: extra jump into a mid period; window_dressing: into the last.
         kind = corruption.get(bank)
+        # The two growth defects differ in SHAPE, the way they do in real reporting:
+        # discontinuity restates the whole balance sheet at once, window dressing inflates
+        # only the lines a regulator reads for liquidity and leaves the rest alone.
         if kind == "discontinuity":
             growth[-2] *= 1.25
-        elif kind == "window_dressing":
-            growth[-1] *= 1.25
+        dressed_period = len(PERIODS) - 1 if kind == "window_dressing" else None
 
         scale = 1.0
         for idx, oy in enumerate(PERIODS):
             scale *= growth[idx]
             aktiv = {k: v * scale for k, v in base.items() if k in _AKTIV}
             passiv = {k: v * scale for k, v in base.items() if k in _PASSIV}
+
+            if idx == dressed_period:
+                for line in _DRESSED_LINES:
+                    if line in aktiv:
+                        aktiv[line] *= 2.5
+                    elif line in passiv:
+                        passiv[line] *= 2.5
 
             if kind == "rounding":
                 aktiv = {k: round(v, -6) for k, v in aktiv.items()}
