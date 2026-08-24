@@ -1,0 +1,59 @@
+erDiagram
+    raw_files {
+        int id PK "autoincrement"
+        varchar file_path "NOT NULL"
+        varchar format "NOT NULL"
+        largebinary content "NOT NULL, byte-for-byte"
+        varchar received_at "NOT NULL"
+    }
+
+    report_lines {
+        int id PK "autoincrement"
+        varchar bank "NOT NULL, idx_report_bank"
+        varchar period "NOT NULL"
+        varchar indicator "NOT NULL"
+        varchar tip "NULL"
+        float summa "NOT NULL"
+        varchar received_at "NOT NULL"
+    }
+
+    audit_runs {
+        int id PK "autoincrement"
+        varchar ran_at "NOT NULL"
+        text config "NULL"
+    }
+
+    audit_results {
+        int run_id PK "FK -> audit_runs.id"
+        varchar bank PK
+        int sample_size "NULL"
+        int dropped "NULL"
+        float mad "NULL"
+        float chi2 "NULL"
+        float chi2_p "NULL"
+        varchar mad_label "NULL"
+        int benford_flagged "NULL"
+        varchar reason "NULL"
+        float composite "NULL"
+        int suspicious "NULL"
+    }
+
+    submissions {
+        int id PK "autoincrement"
+        varchar title "NOT NULL"
+        varchar status "NOT NULL, idx_submission_status"
+        varchar created_at "NOT NULL"
+        varchar started_at "NULL"
+        varchar finished_at "NULL"
+        text files_json "NOT NULL"
+        text issues_json "NOT NULL"
+        text result_json "NULL"
+        text skipped_json "NOT NULL"
+        text error "NULL"
+        varchar error_key "NULL"
+        text error_params_json "NOT NULL"
+        int total_banks "NULL"
+        int suspicious_count "NULL"
+    }
+
+    audit_runs ||--o{ audit_results : "run_id (logical FK)"
