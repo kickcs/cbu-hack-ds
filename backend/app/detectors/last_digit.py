@@ -69,7 +69,10 @@ class LastDigitUniformityDetector(Detector):
         return {
             "test": self.name,
             "title": "Last digit is not uniform",
+            "title_key": "evidence.blocks.last_digit.title",
             "summary": f"chi2 = {chi2:.1f}, p = {p:.2g} against a uniform last digit "
             f"across {n} loan amounts in the register.",
+            "summary_key": "evidence.blocks.last_digit.summary",
+            "summary_args": {"chi2": f"{chi2:.1f}", "p": f"{p:.2g}", "n": n},
             "rows": rows,
         }

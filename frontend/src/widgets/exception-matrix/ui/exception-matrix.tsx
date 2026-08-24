@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   ExceptionCell,
@@ -39,6 +40,7 @@ export function ExceptionMatrix({
   navigable = true,
   caption,
 }: Props) {
+  const { t } = useTranslation("app")
   const tests = useMemo(() => testColumns(rows), [rows])
 
   return (
@@ -51,7 +53,7 @@ export function ExceptionMatrix({
           <Matrix rows={rows} tests={tests} navigable={navigable} />
         )}
         <footer className="border-t px-4 py-3">
-          <p className="eyebrow mb-2">Tests — press to narrow the matrix</p>
+          <p className="eyebrow mb-2">{t("matrix.pressToNarrow")}</p>
           <TestLegend tests={tests} />
         </footer>
       </section>
@@ -60,14 +62,16 @@ export function ExceptionMatrix({
 }
 
 function Toolbar({ caption }: { caption?: string }) {
+  const { t } = useTranslation("app")
+
   return (
     <header className="flex flex-wrap items-end justify-between gap-3 border-b px-4 py-3">
       <div>
         <h2 className="font-display text-sm font-semibold tracking-tight">
-          {caption ?? "Exception matrix"}
+          {caption ?? t("matrix.title")}
         </h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Ranked by composite score, worst first
+          {t("matrix.rankedBy")}
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -97,6 +101,7 @@ function Matrix({
   tests: string[]
   navigable: boolean
 }) {
+  const { t } = useTranslation("app")
   const { filter, active, clear } = useBankFilters()
 
   const visible = useMemo(() => filter(rows), [filter, rows])
@@ -105,11 +110,11 @@ function Matrix({
     return (
       <div className="flex flex-col items-center gap-3 px-4 py-14 text-center">
         <p className="text-sm text-muted-foreground">
-          No bank matches the current filters.
+          {t("matrix.noMatch")}
         </p>
         {active && (
           <Button variant="outline" size="sm" onClick={clear}>
-            Clear filters
+            {t("matrix.clearFilters")}
           </Button>
         )}
       </div>
@@ -127,13 +132,13 @@ function Matrix({
               colSpan={tests.length}
               className="eyebrow hidden border-x border-b px-2 pt-2 pb-1 text-center font-normal md:table-cell"
             >
-              Tests
+              {t("matrix.tests")}
             </th>
             <th colSpan={3} />
           </tr>
           <tr className="border-b">
             <Head className="w-9 text-right">#</Head>
-            <Head className="text-left">Bank</Head>
+            <Head className="text-left">{t("matrix.bank")}</Head>
             {tests.map((test, i) => {
               const label = testLabel(test)
               return (
@@ -150,11 +155,11 @@ function Matrix({
                 </Head>
               )
             })}
-            <Head className="w-20 text-right">MAD</Head>
+            <Head className="w-20 text-right">{t("matrix.mad")}</Head>
             <Head className="hidden w-14 text-right normal-case sm:table-cell">
               n
             </Head>
-            <Head className="w-16 text-right">Score</Head>
+            <Head className="w-16 text-right">{t("matrix.score")}</Head>
           </tr>
         </thead>
 
@@ -208,6 +213,7 @@ function Row({
   tests: string[]
   navigable: boolean
 }) {
+  const { t } = useTranslation("app")
   const navigate = useNavigate()
   const cells = testCells(row, tests)
   const fired = cells.filter((c) => c.flagged)
@@ -273,9 +279,7 @@ function Row({
 
       <td
         title={
-          row.benford.sufficient
-            ? undefined
-            : "Fewer than 300 loans — the reading is withheld, not reported."
+          row.benford.sufficient ? undefined : t("matrix.fewerThan300")
         }
         className={cn(
           "px-2 py-1.5 text-right tabular-nums",

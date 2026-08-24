@@ -1,8 +1,11 @@
+import { useTranslation } from "react-i18next"
+
 import { Button } from "@/shared/ui/button"
 
 import { useBankFilters } from "../model/bank-filters-context"
 
 export function FlaggedToggle() {
+  const { t } = useTranslation("ui")
   const { flaggedOnly, toggleFlaggedOnly } = useBankFilters()
 
   return (
@@ -13,7 +16,7 @@ export function FlaggedToggle() {
       onClick={toggleFlaggedOnly}
       className="h-8 text-xs"
     >
-      Flagged only
+      {t("flagged.label")}
     </Button>
   )
 }

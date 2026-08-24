@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import {
   VerdictStamp,
   verdictLine,
@@ -25,6 +27,7 @@ export function CaseFileMasthead({
   cells,
   records,
 }: Props) {
+  const { t } = useTranslation("app")
   const fired = cells.filter((cell) => cell.flagged).length
 
   return (
@@ -35,7 +38,7 @@ export function CaseFileMasthead({
       )}
     >
       <p className="eyebrow">
-        Case file · rank {rank} of {total}
+        {t("caseFile.rank", { rank, total })}
       </p>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -50,21 +53,21 @@ export function CaseFileMasthead({
       </p>
 
       <dl className="grid grid-cols-2 gap-x-6 gap-y-5 border-t pt-4 sm:grid-cols-4 sm:gap-x-10">
-        <Reading label="Findings" emphasis>
+        <Reading label={t("caseFile.findings")} emphasis>
           <span className={cn(fired > 0 && "text-destructive")}>
-            {fired} of {cells.length}
+            {t("caseFile.firedOf", { fired, total: cells.length })}
           </span>
         </Reading>
-        <Reading label="Composite score" emphasis>
+        <Reading label={t("caseFile.compositeScore")} emphasis>
           {fmt(audit.composite, 2)}
         </Reading>
-        <Reading label="MAD" emphasis>
+        <Reading label={t("matrix.mad")} emphasis>
           {/* Withheld below 300 loans, so the figure is not shown as if it were one. */}
           <span className={cn(audit.benford.flagged && "text-destructive")}>
             {audit.benford.sufficient ? fmt(audit.benford.mad) : "—"}
           </span>
         </Reading>
-        <Reading label="Loan records" emphasis>
+        <Reading label={t("caseFile.loanRecords")} emphasis>
           {records === null ? "—" : fmtCount(records)}
         </Reading>
       </dl>

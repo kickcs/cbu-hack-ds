@@ -56,10 +56,18 @@ class ThresholdClusteringDetector(Detector):
                 }
             )
         rows.sort(key=lambda r: r["period"])
+        flagged = sum(1 for r in rows if r["suspect"])
         return {
             "test": self.name,
             "title": "Clustering just above the K1 limit",
-            "summary": f"{sum(1 for r in rows if r['suspect'])} of {len(rows)} K1 readings sit in a narrow band "
+            "title_key": "evidence.blocks.threshold.title",
+            "summary": f"{flagged} of {len(rows)} K1 readings sit in a narrow band "
             f"just above the regulatory limit (limit, limit+{THRESHOLD_BAND}].",
+            "summary_key": "evidence.blocks.threshold.summary",
+            "summary_args": {
+                "flagged": flagged,
+                "total": len(rows),
+                "band": f"{THRESHOLD_BAND}",
+            },
             "rows": rows,
         }

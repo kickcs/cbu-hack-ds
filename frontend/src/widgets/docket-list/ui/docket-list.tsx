@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import {
   DocketRule,
   FilingStatusMark,
@@ -23,16 +25,21 @@ type Props = {
  * from queue to verdict, so the auditor can watch one without losing the list.
  */
 export function DocketList({ filings, loading }: Props) {
+  const { t } = useTranslation("app")
+
   return (
     <section className="flex flex-col gap-3">
       <SectionHead
         aside={
           filings.length > 0
-            ? `${filings.length} ${filings.length === 1 ? "filing" : "filings"}`
+            ? t("docket.count", {
+                count: filings.length,
+                total: filings.length,
+              })
             : undefined
         }
       >
-        Docket
+        {t("docket.title")}
       </SectionHead>
 
       {loading && <LoadingRows />}
@@ -56,6 +63,7 @@ export function DocketList({ filings, loading }: Props) {
 }
 
 function DocketRow({ filing, index }: { filing: Filing; index: number }) {
+  const { t } = useTranslation("app")
   const flagged = filing.suspicious_count ?? 0
   const settled = filing.status === "done" || filing.status === "failed"
 
@@ -87,12 +95,10 @@ function DocketRow({ filing, index }: { filing: Filing; index: number }) {
 
         <p className="truncate text-xs text-muted-foreground">
           {filedAt(filing.created_at)} ·{" "}
-          {filing.files.length === 1
-            ? "1 file"
-            : `${filing.files.length} files`}
+          {t("docket.files", { count: filing.files.length, total: filing.files.length })}
           {filing.status === "done" &&
             filing.issues.length > 0 &&
-            ` · ${filing.issues.length} ${filing.issues.length === 1 ? "remark" : "remarks"}`}
+            t("docket.remarks", { count: filing.issues.length })}
         </p>
 
         {/* Why a filing came back is the whole content of the row, not a footnote to it. */}
@@ -122,10 +128,11 @@ function DocketRow({ filing, index }: { filing: Filing; index: number }) {
 }
 
 function EmptyDocket() {
+  const { t } = useTranslation("app")
+
   return (
     <p className="border-l-2 py-1 pl-4 text-sm text-muted-foreground">
-      Nothing filed yet. Upload a register, a set of prudential ratios or an
-      aggregate report, and it is examined on its own.
+      {t("docket.empty")}
     </p>
   )
 }

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { ChevronLeftIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { docketNo, filingQuery, isOpen } from "@/entities/submission"
 import { DiscardFilingButton } from "@/features/clear-docket"
@@ -18,6 +19,7 @@ import { FilingNotes } from "@/widgets/filing-notes"
  * bank, the same way they do on the dashboard.
  */
 export function FilingReportPage({ id }: { id: number }) {
+  const { t } = useTranslation("app")
   const { data: filing, isPending, isError } = useQuery(filingQuery(id))
 
   return (
@@ -27,7 +29,7 @@ export function FilingReportPage({ id }: { id: number }) {
       </AppHeader>
 
       <nav
-        aria-label="Filing"
+        aria-label={t("filingReport.navLabel")}
         className="sticky top-14 z-10 border-b bg-background/90 backdrop-blur"
       >
         <div className="mx-auto flex h-11 max-w-5xl items-center justify-between gap-4 px-5 sm:px-8">
@@ -36,7 +38,7 @@ export function FilingReportPage({ id }: { id: number }) {
             className="code flex items-center gap-1 rounded-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             <ChevronLeftIcon className="size-3" />
-            Docket
+            {t("filingReport.docket")}
           </Link>
           {filing && <DiscardFilingButton id={filing.id} />}
         </div>
@@ -59,7 +61,9 @@ export function FilingReportPage({ id }: { id: number }) {
               <ExceptionMatrix
                 rows={filing.results}
                 loading={false}
-                caption={`Findings in filing ${docketNo(filing.id)}`}
+                caption={t("filingReport.caption", {
+                  docket: docketNo(filing.id),
+                })}
               />
             )}
           </>
@@ -71,10 +75,12 @@ export function FilingReportPage({ id }: { id: number }) {
 
 /** The page polls itself, so this is a placeholder rather than an instruction. */
 function StillOpen() {
+  const { t } = useTranslation("app")
+
   return (
     <section className="flex flex-col gap-3">
       <p className="border-l-2 py-1 pl-4 text-sm text-muted-foreground">
-        The findings appear here as soon as the examination finishes.
+        {t("filingReport.stillOpen")}
       </p>
       <Skeleton className="h-48 w-full" />
     </section>
@@ -82,21 +88,22 @@ function StillOpen() {
 }
 
 function NoFiling({ id }: { id: number }) {
+  const { t } = useTranslation("app")
+
   return (
     <section className="flex flex-col items-start gap-4 border-l-2 pl-5">
-      <p className="eyebrow">Filing {docketNo(id)}</p>
+      <p className="eyebrow">{t("filingReport.filing", { docket: docketNo(id) })}</p>
       <h1 className="font-display text-2xl font-semibold tracking-tight">
-        No such filing
+        {t("filingReport.noSuch")}
       </h1>
       <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-        Nothing is on the docket under that number. It may have been discarded.
-        Upload the report again to have it examined.
+        {t("filingReport.noSuchBody")}
       </p>
       <Link
         to={FILINGS_PATH}
         className="code rounded-sm text-foreground underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
-        Back to the docket
+        {t("filingReport.backToDocket")}
       </Link>
     </section>
   )

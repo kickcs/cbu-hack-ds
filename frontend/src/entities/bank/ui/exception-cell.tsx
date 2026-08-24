@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { fmt } from "@/shared/lib/format"
 import { cn } from "@/shared/lib/utils"
 
@@ -16,9 +18,14 @@ export function ExceptionCell({
   cell: TestCell
   delay?: number
 }) {
+  const { t } = useTranslation("ui")
   const label = testLabel(cell.test)
-  const score = cell.score === null ? "no reading" : fmt(cell.score, 3)
-  const caption = `${label.name} — ${cell.flagged ? "flagged" : "no finding"}, ${score}`
+  const score =
+    cell.score === null ? t("exceptionCell.noReading") : fmt(cell.score, 3)
+  const outcome = cell.flagged
+    ? t("exceptionCell.flagged")
+    : t("exceptionCell.noFinding")
+  const caption = t("exceptionCell.caption", { name: label.name, outcome, score })
 
   return (
     <span

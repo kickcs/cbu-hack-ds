@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { testLabel, type TestCell } from "@/entities/bank"
 import { fmt } from "@/shared/lib/format"
 import { cn } from "@/shared/lib/utils"
@@ -8,12 +10,15 @@ import { SectionHead } from "@/shared/ui/section-head"
  * it looks for spelled out — the matrix squares are a summary, this is the read.
  */
 export function TestRoster({ cells }: { cells: TestCell[] }) {
+  const { t } = useTranslation("app")
   const fired = cells.filter((cell) => cell.flagged).length
 
   return (
     <section className="flex flex-col gap-3">
-      <SectionHead aside={`${fired} of ${cells.length} flagged`}>
-        Test roster
+      <SectionHead
+        aside={t("roster.flaggedOf", { fired, total: cells.length })}
+      >
+        {t("roster.title")}
       </SectionHead>
       <ul className="flex flex-col">
         {cells.map((cell) => (
@@ -25,6 +30,7 @@ export function TestRoster({ cells }: { cells: TestCell[] }) {
 }
 
 function RosterRow({ cell }: { cell: TestCell }) {
+  const { t } = useTranslation("app")
   const label = testLabel(cell.test)
 
   return (
@@ -56,10 +62,10 @@ function RosterRow({ cell }: { cell: TestCell }) {
             href={`#evidence-${cell.test}`}
             className="code text-destructive underline-offset-4 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
-            Flagged
+            {t("roster.flagged")}
           </a>
         ) : (
-          <span className="code text-muted-foreground">Clear</span>
+          <span className="code text-muted-foreground">{t("roster.clear")}</span>
         )}
       </div>
     </li>

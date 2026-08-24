@@ -63,6 +63,9 @@ class ArithmeticDetector(Detector):
         return {
             "test": self.name,
             "title": "Total assets do not foot",
+            "title_key": "evidence.blocks.arithmetic.title",
             "summary": "The reported assets total does not match the sum of its components.",
+            "summary_key": "evidence.blocks.arithmetic.summary",
+            "summary_args": {},
             "rows": rows,
         }

@@ -54,6 +54,7 @@ def check_upload(name: str, size: int) -> list[Issue]:
                 "unsupported_format",
                 f"{suffix or 'A file with no extension'} is not supported — upload CSV, XLSX or XML.",
                 file=name,
+                params={"suffix": suffix or "A file with no extension"},
             )
         ]
     if size <= 0:
@@ -61,7 +62,12 @@ def check_upload(name: str, size: int) -> list[Issue]:
     if size > MAX_FILE_BYTES:
         limit = MAX_FILE_BYTES // (1024 * 1024)
         return [
-            error("file_too_large", f"The file is over {limit} MB — split the export and upload it in parts.", file=name)
+            error(
+                "file_too_large",
+                f"The file is over {limit} MB — split the export and upload it in parts.",
+                file=name,
+                params={"limit": limit},
+            )
         ]
     return []
 
@@ -144,6 +150,7 @@ def validate_register(frame: pd.DataFrame, file: str) -> tuple[pd.DataFrame, lis
                 "rather than reported.",
                 file=file,
                 count=len(small),
+                params={"min_sample": MIN_SAMPLE, "banks": ", ".join(small[:5])},
             )
         )
     return frame, issues
@@ -162,6 +169,7 @@ def validate_normativ(frame: pd.DataFrame, file: str) -> tuple[pd.DataFrame, lis
                 f"Missing columns: {', '.join(missing)} — the tests that read them are skipped.",
                 file=file,
                 count=len(missing),
+                params={"columns": ", ".join(missing)},
             )
         )
     if resolve_column(frame, PERIOD_COLUMNS) is None:

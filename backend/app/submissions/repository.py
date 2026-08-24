@@ -92,12 +92,22 @@ class SubmissionRepository:
             suspicious_count=sum(1 for r in results if r.suspicious),
         )
 
-    def mark_failed(self, submission_id: int, error: str, issues: list[Issue] | None = None) -> None:
+    def mark_failed(
+        self,
+        submission_id: int,
+        error: str,
+        issues: list[Issue] | None = None,
+        *,
+        error_key: str | None = None,
+        error_params: dict[str, str | int] | None = None,
+    ) -> None:
         self._update(
             submission_id,
             status=SubmissionStatus.FAILED,
             finished_at=now_iso(),
             error=error,
+            error_key=error_key,
+            error_params_json=json.dumps(error_params or {}, ensure_ascii=False),
             issues_json=_dumps(issues or []),
         )
 
@@ -163,6 +173,8 @@ def _to_model(row: SubmissionRow, *, with_results: bool) -> Submission:
         issues=[Issue(**i) for i in json.loads(row.issues_json or "[]")],
         skipped=json.loads(row.skipped_json or "[]"),
         error=row.error,
+        error_key=row.error_key,
+        error_params=json.loads(row.error_params_json or "{}"),
         total_banks=row.total_banks,
         suspicious_count=row.suspicious_count,
         results=(

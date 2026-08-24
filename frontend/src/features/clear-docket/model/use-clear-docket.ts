@@ -3,6 +3,7 @@ import { toast } from "sonner"
 
 import { docketNo, submissionApi, submissionKeys } from "@/entities/submission"
 import { apiErrorMessage } from "@/shared/api/client"
+import i18n from "@/shared/lib/i18n"
 
 /** Removing one filing takes its stored files with it; there is no undo. */
 export function useDiscardFiling() {
@@ -11,11 +12,13 @@ export function useDiscardFiling() {
   const { mutate, isPending } = useMutation({
     mutationFn: submissionApi.remove,
     onSuccess: async (_, id) => {
-      toast.success(`Filing ${docketNo(id)} discarded`)
+      toast.success(
+        i18n.t("ui:toast.filingDiscarded", { docket: docketNo(id) })
+      )
       await queryClient.invalidateQueries({ queryKey: submissionKeys.all })
     },
     onError: (error) =>
-      toast.error("Filing not discarded", {
+      toast.error(i18n.t("ui:toast.filingNotDiscarded"), {
         description: apiErrorMessage(error),
       }),
   })
@@ -29,14 +32,13 @@ export function useClearDocket() {
   const { mutate, isPending } = useMutation({
     mutationFn: submissionApi.clear,
     onSuccess: async ({ deleted }) => {
-      toast.success(
-        deleted === 1 ? "1 filing discarded" : `${deleted} filings discarded`,
-        { description: "The supervisory dataset is untouched." }
-      )
+      toast.success(i18n.t("ui:toast.filingsDiscarded", { count: deleted }), {
+        description: i18n.t("ui:toast.supervisoryUntouched"),
+      })
       await queryClient.invalidateQueries({ queryKey: submissionKeys.all })
     },
     onError: (error) =>
-      toast.error("Docket not cleared", {
+      toast.error(i18n.t("ui:toast.docketNotCleared"), {
         description: apiErrorMessage(error),
       }),
   })

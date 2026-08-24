@@ -1,9 +1,11 @@
 import { MoonIcon, SunIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { useTheme } from "@/shared/lib/theme"
 import { Button } from "@/shared/ui/button"
 
 export function ThemeToggle() {
+  const { t } = useTranslation("ui")
   const { theme, setTheme } = useTheme()
   const dark =
     theme === "dark" ||
@@ -15,10 +17,12 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon-sm"
       onClick={() => setTheme(dark ? "light" : "dark")}
-      title="Switch theme (D)"
+      title={t("theme.switchTitle")}
     >
       {dark ? <SunIcon /> : <MoonIcon />}
-      <span className="sr-only">Switch to {dark ? "light" : "dark"} theme</span>
+      <span className="sr-only">
+        {dark ? t("theme.toLight") : t("theme.toDark")}
+      </span>
     </Button>
   )
 }

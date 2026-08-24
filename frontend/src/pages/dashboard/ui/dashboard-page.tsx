@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { testColumns } from "@/entities/bank"
 import { RunAuditButton } from "@/features/run-audit"
 import { ThemeToggle } from "@/features/theme-toggle"
@@ -10,6 +12,7 @@ import { ExceptionMatrix } from "@/widgets/exception-matrix"
 import { useDashboard } from "../model/use-dashboard"
 
 export function DashboardPage() {
+  const { t } = useTranslation("app")
   const { meta, rows, loading } = useDashboard()
 
   const banks = rows ?? []
@@ -22,7 +25,7 @@ export function DashboardPage() {
           to={FILINGS_PATH}
           className="code mr-1 rounded-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         >
-          Upload Report
+          {t("filings.uploadReport")}
         </Link>
         <ThemeToggle />
         <RunAuditButton />

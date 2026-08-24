@@ -1,10 +1,12 @@
 import { SearchIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { Input } from "@/shared/ui/input"
 
 import { useBankFilters } from "../model/bank-filters-context"
 
 export function BankSearch() {
+  const { t } = useTranslation("ui")
   const { query, setQuery } = useBankFilters()
 
   return (
@@ -13,9 +15,9 @@ export function BankSearch() {
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Find a bank"
+        placeholder={t("search.placeholder")}
         className="h-8 w-40 pl-8 text-xs sm:w-48"
-        aria-label="Find a bank"
+        aria-label={t("search.placeholder")}
       />
     </div>
   )

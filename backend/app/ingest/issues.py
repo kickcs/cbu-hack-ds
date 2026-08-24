@@ -32,6 +32,10 @@ class Issue(BaseModel):
     message: str = Field(description="Sentence shown in the dashboard.")
     file: str | None = Field(default=None, description="File the issue belongs to.")
     count: int | None = Field(default=None, description="The tally the message states, when it has one.")
+    params: dict[str, str | int] = Field(
+        default_factory=dict,
+        description="Interpolation values the dashboard needs to localize the message.",
+    )
 
 
 def tally(n: int, one: str, many: str) -> str:
@@ -39,12 +43,40 @@ def tally(n: int, one: str, many: str) -> str:
     return f"{n} {one if n == 1 else many}"
 
 
-def error(code: str, message: str, *, file: str | None = None, count: int | None = None) -> Issue:
-    return Issue(level=Severity.ERROR, code=code, message=message, file=file, count=count)
+def error(
+    code: str,
+    message: str,
+    *,
+    file: str | None = None,
+    count: int | None = None,
+    params: dict[str, str | int] | None = None,
+) -> Issue:
+    return Issue(
+        level=Severity.ERROR,
+        code=code,
+        message=message,
+        file=file,
+        count=count,
+        params=params or {},
+    )
 
 
-def warning(code: str, message: str, *, file: str | None = None, count: int | None = None) -> Issue:
-    return Issue(level=Severity.WARNING, code=code, message=message, file=file, count=count)
+def warning(
+    code: str,
+    message: str,
+    *,
+    file: str | None = None,
+    count: int | None = None,
+    params: dict[str, str | int] | None = None,
+) -> Issue:
+    return Issue(
+        level=Severity.WARNING,
+        code=code,
+        message=message,
+        file=file,
+        count=count,
+        params=params or {},
+    )
 
 
 def has_errors(issues: list[Issue]) -> bool:

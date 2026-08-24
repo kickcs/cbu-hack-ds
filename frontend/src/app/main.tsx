@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client"
 import { Toaster } from "sonner"
 
 import "./styles/index.css"
+import "@/shared/lib/i18n"
 import { QueryProvider } from "./providers/query-provider"
 import { AppRoutes } from "./routes"
 import { RouterProvider } from "@/shared/lib/router"

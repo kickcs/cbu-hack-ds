@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next"
+
 import { cn } from "@/shared/lib/utils"
 
-import { STATUS_LABELS } from "../model/labels"
+import { statusLabel } from "../model/labels"
 import type { FilingStatus } from "../model/types"
 
 /**
@@ -17,6 +19,8 @@ export function FilingStatusMark({
   findings?: number | null
   className?: string
 }) {
+  const { t } = useTranslation("ui")
+
   if (status === "done") {
     const flagged = findings ?? 0
     return (
@@ -27,7 +31,9 @@ export function FilingStatusMark({
           className
         )}
       >
-        {flagged > 0 ? `${flagged} flagged` : "No findings"}
+        {flagged > 0
+          ? t("filingStatus.flagged", { count: flagged })
+          : t("filingStatus.noFindings")}
       </span>
     )
   }
@@ -40,7 +46,7 @@ export function FilingStatusMark({
         className
       )}
     >
-      {STATUS_LABELS[status]}
+      {statusLabel(status)}
       {status === "processing" && <Ellipsis />}
     </span>
   )

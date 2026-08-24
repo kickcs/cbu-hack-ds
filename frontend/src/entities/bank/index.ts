@@ -7,7 +7,7 @@ export type {
   EvidenceRow,
 } from "./model/types"
 export type { TestLabel } from "./model/labels"
-export { MAD_LABELS, TEST_ORDER, testLabel } from "./model/labels"
+export { TEST_ORDER, madLabel, testLabel } from "./model/labels"
 export { bankApi } from "./api/bank-api"
 export {
   bankKeys,
@@ -22,7 +22,12 @@ export {
   testCells,
   testColumns,
 } from "./lib/test-columns"
-export { evidenceColumnHead, fmtEvidenceCell } from "./lib/format-evidence"
+export {
+  evidenceColumnHead,
+  evidenceSummary,
+  evidenceTitle,
+  fmtEvidenceCell,
+} from "./lib/format-evidence"
 export { chiReading, madReading, verdictLine } from "./lib/verdict"
 export { BenfordMark } from "./ui/benford-mark"
 export { BenfordPlot } from "./ui/benford-plot"

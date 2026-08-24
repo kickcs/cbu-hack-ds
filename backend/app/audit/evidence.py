@@ -41,8 +41,16 @@ def benford_evidence(register: pd.DataFrame, bank: str) -> EvidenceBlock:
     return {
         "test": BENFORD_REASON,
         "title": "Departure from Benford's law",
+        "title_key": "evidence.blocks.benford.title",
         "summary": f"Digit {worst['digit']} leads {worst['observed']:.1%} of amounts "
         f"instead of {worst['expected']:.1%}, a deviation of {worst['deviation']:+.1%}.",
+        "summary_key": "evidence.blocks.benford.summary",
+        "summary_args": {
+            "digit": int(worst["digit"]),
+            "observed": f"{worst['observed']:.1%}",
+            "expected": f"{worst['expected']:.1%}",
+            "deviation": f"{worst['deviation']:+.1%}",
+        },
         "rows": rows,
     }
 

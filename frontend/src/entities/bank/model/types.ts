@@ -42,6 +42,12 @@ export type EvidenceBlock = {
   test: string
   title: string
   summary: string
+  /** i18n key for the title, when the backend reports one (else fall back to `title`). */
+  title_key?: string
+  /** i18n key for the summary, when the backend reports one (else fall back to `summary`). */
+  summary_key?: string
+  /** Interpolation values for `summary_key`. */
+  summary_args?: Record<string, string | number>
   rows: EvidenceRow[]
 }
 

@@ -1,0 +1,87 @@
+export const ui = {
+  language: {
+    label: "Язык",
+  },
+  theme: {
+    switchTitle: "Переключить тему (D)",
+    toLight: "Включить светлую тему",
+    toDark: "Включить тёмную тему",
+  },
+  runAudit: {
+    running: "Выполняется…",
+    run: "Запустить аудит",
+  },
+  intake: {
+    upload: "Загрузить отчёт",
+    drop: "Перетащите файлы сюда или нажмите, чтобы выбрать",
+    formats: "CSV · XLSX · XML — до 25 МБ каждый",
+    hint: "Выберите любое число файлов, проверьте их ниже и отправьте одной заявкой. Ничто не проверяется, пока вы не нажмёте кнопку.",
+    remove: "удалить",
+    ready_one: "{{count}} файл готов",
+    ready_few: "{{count}} файла готовы",
+    ready_many: "{{count}} файлов готово",
+    sending: "Отправка заявки…",
+  },
+  clearDocket: {
+    trigger: "Очистить очередь",
+    confirm_one: "Очистить очередь от {{count}} заявки?",
+    confirm_few: "Очистить очередь от {{count}} заявок?",
+    confirm_many: "Очистить очередь от {{count}} заявок?",
+    body: "Удаляются все заявки и загруженные вместе с ними файлы. Надзорный датасет и матрица на главной странице не затрагиваются.",
+    keep: "Оставить их",
+    clearing: "Очистка…",
+  },
+  discard: {
+    confirm: "Удалить",
+    keep: "Оставить",
+    srLabel: "Удалить заявку {{docket}}",
+  },
+  search: {
+    placeholder: "Найти банк",
+  },
+  flagged: {
+    label: "Только помеченные",
+  },
+  verdictStamp: {
+    flagged: "Помечен",
+    noFindings: "Нарушений нет",
+  },
+  exceptionCell: {
+    noReading: "нет данных",
+    flagged: "помечен",
+    noFinding: "без замечаний",
+    caption: "{{name}} — {{outcome}}, {{score}}",
+  },
+  benfordPlot: {
+    digitTitle: "Цифра {{digit}}: факт {{observed}}%, ожидание {{expected}}%",
+    observed: "факт",
+    benford: "Бенфорд",
+    deviationCaption: "отклонение в процентных пунктах по каждой цифре",
+  },
+  filingStatus: {
+    flagged_one: "{{count}} банк помечен",
+    flagged_few: "{{count}} банка помечены",
+    flagged_many: "{{count}} банков помечено",
+    noFindings: "Нарушений нет",
+  },
+  dialog: {
+    close: "Закрыть",
+  },
+  toast: {
+    auditComplete: "Аудит завершён",
+    flaggedOf: "Помечены {{flagged}} из {{total}} банков.",
+    noFindingsAcross: "По {{total}} банкам нарушений нет.",
+    auditFailed: "Не удалось запустить аудит",
+    filingReceived: "Заявка {{docket}} принята",
+    filingQueued: "Она в очереди. Очередь обновится после проверки.",
+    filingRejected: "Заявка не принята",
+    filingDiscarded: "Заявка {{docket}} удалена",
+    filingNotDiscarded: "Заявку не удалось удалить",
+    filingsDiscarded_one: "{{count}} заявка удалена",
+    filingsDiscarded_few: "{{count}} заявки удалены",
+    filingsDiscarded_many: "{{count}} заявок удалено",
+    supervisoryUntouched: "Надзорный датасет не затронут.",
+    docketNotCleared: "Очередь не очищена",
+    queryFailed: "Не удалось загрузить данные",
+  },
+}

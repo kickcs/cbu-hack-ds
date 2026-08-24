@@ -53,6 +53,9 @@ class RoundingDetector(Detector):
         return {
             "test": self.name,
             "title": "Implausibly round figures",
+            "title_key": "evidence.blocks.rounding.title",
             "summary": f"{len(rows)} reported figures end in {ROUNDING_TRAILING_ZEROS} or more zeros.",
+            "summary_key": "evidence.blocks.rounding.summary",
+            "summary_args": {"count": len(rows), "zeros": ROUNDING_TRAILING_ZEROS},
             "rows": rows,
         }

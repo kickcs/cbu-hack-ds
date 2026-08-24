@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { Button } from "@/shared/ui/button"
 import {
@@ -15,6 +16,7 @@ import { useClearDocket } from "../model/use-clear-docket"
 
 /** Emptying the docket destroys every filing and its stored files at once. */
 export function ClearDocketButton({ count }: { count: number }) {
+  const { t } = useTranslation("ui")
   const [open, setOpen] = useState(false)
   const { clearing, clear } = useClearDocket()
 
@@ -23,26 +25,23 @@ export function ClearDocketButton({ count }: { count: number }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button variant="ghost" size="sm" />}>
-        Clear the docket
+        {t("clearDocket.trigger")}
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Clear the docket of {count === 1 ? "1 filing" : `${count} filings`}?
+            {t("clearDocket.confirm", { count })}
           </DialogTitle>
         </DialogHeader>
 
         <DialogBody>
-          <p className="text-muted-foreground">
-            Every filing and the files uploaded with it are deleted. The
-            supervisory dataset and the matrix on the front page are untouched.
-          </p>
+          <p className="text-muted-foreground">{t("clearDocket.body")}</p>
         </DialogBody>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Keep them
+            {t("clearDocket.keep")}
           </Button>
           <Button
             variant="destructive"
@@ -52,7 +51,7 @@ export function ClearDocketButton({ count }: { count: number }) {
               setOpen(false)
             }}
           >
-            {clearing ? "Clearing…" : "Clear the docket"}
+            {clearing ? t("clearDocket.clearing") : t("clearDocket.trigger")}
           </Button>
         </DialogFooter>
       </DialogContent>

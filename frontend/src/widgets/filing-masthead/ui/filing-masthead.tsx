@@ -1,10 +1,13 @@
+import type { TFunction } from "i18next"
+import { useTranslation } from "react-i18next"
+
 import {
   DocketRule,
   docketNo,
   filedAt,
+  statusLabel,
+  statusNote,
   tookFor,
-  STATUS_NOTES,
-  STATUS_LABELS,
   type FilingReport,
 } from "@/entities/submission"
 import { fmtCount } from "@/shared/lib/format"
@@ -13,6 +16,7 @@ import { Reading } from "@/shared/ui/reading"
 
 /** The cover of one filing: what came in, and what the examination made of it. */
 export function FilingMasthead({ filing }: { filing: FilingReport }) {
+  const { t } = useTranslation("app")
   const flagged = filing.suspicious_count ?? 0
   const took = tookFor(filing.started_at, filing.finished_at)
 
@@ -22,7 +26,10 @@ export function FilingMasthead({ filing }: { filing: FilingReport }) {
 
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <p className="eyebrow">
-          Filing {docketNo(filing.id)} · filed {filedAt(filing.created_at)}
+          {t("filingMasthead.filing", {
+            docket: docketNo(filing.id),
+            filed: filedAt(filing.created_at),
+          })}
         </p>
 
         <h1 className="font-display text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
@@ -30,48 +37,54 @@ export function FilingMasthead({ filing }: { filing: FilingReport }) {
         </h1>
 
         <p className="max-w-2xl text-base leading-relaxed text-pretty">
-          {summary(filing)}
+          {summary(filing, t)}
         </p>
 
         <dl className="grid grid-cols-2 gap-x-6 gap-y-5 border-t pt-4 sm:grid-cols-4 sm:gap-x-10">
-          <Reading label="Banks read" emphasis>
+          <Reading label={t("filingMasthead.banksRead")} emphasis>
             {filing.total_banks === null ? "—" : fmtCount(filing.total_banks)}
           </Reading>
-          <Reading label="Flagged" emphasis>
+          <Reading label={t("filingMasthead.flagged")} emphasis>
             <span className={cn(flagged > 0 && "text-destructive")}>
               {filing.status === "done" ? flagged : "—"}
             </span>
           </Reading>
-          <Reading label="Files" emphasis>
+          <Reading label={t("filingMasthead.files")} emphasis>
             {filing.files.length}
           </Reading>
-          <Reading label="Examined in" emphasis>
-            {took ?? STATUS_LABELS[filing.status]}
+          <Reading label={t("filingMasthead.examinedIn")} emphasis>
+            {took ?? statusLabel(filing.status)}
           </Reading>
         </dl>
 
-        <FileList files={filing.files} />
+        <FileList files={filing.files} t={t} />
       </div>
     </section>
   )
 }
 
-function summary(filing: FilingReport): string {
+function summary(filing: FilingReport, t: TFunction): string {
   if (filing.status !== "done") {
-    return filing.error ?? STATUS_NOTES[filing.status]
+    return filing.error ?? statusNote(filing.status)
   }
 
   const flagged = filing.suspicious_count ?? 0
   const banks = filing.total_banks ?? 0
-  const scope = `${fmtCount(banks)} ${banks === 1 ? "bank" : "banks"}`
+  const scope = t("filingMasthead.bankScope", { count: banks, total: fmtCount(banks) })
 
   return flagged === 0
-    ? `Nothing in this filing crossed a threshold. ${scope} were read and every test they carried input for came back clean.`
-    : `${flagged} of ${scope} in this filing crossed at least one threshold. They are ranked below, worst first.`
+    ? t("filingMasthead.clean", { scope })
+    : t("filingMasthead.flaggedSentence", { flagged, scope })
 }
 
 /** What was actually in the envelope, and what intake took each file for. */
-function FileList({ files }: { files: FilingReport["files"] }) {
+function FileList({
+  files,
+  t,
+}: {
+  files: FilingReport["files"]
+  t: TFunction
+}) {
   return (
     <ul className="flex flex-col gap-1 border-t pt-4">
       {files.map((file) => (
@@ -93,7 +106,9 @@ function FileList({ files }: { files: FilingReport["files"] }) {
             {file.role_label}
           </span>
           <span className="w-20 shrink-0 text-right text-muted-foreground tabular-nums">
-            {file.rows > 0 ? `${fmtCount(file.rows)} rows` : "—"}
+            {file.rows > 0
+              ? t("filingMasthead.rows", { count: file.rows, total: fmtCount(file.rows) })
+              : "—"}
           </span>
         </li>
       ))}

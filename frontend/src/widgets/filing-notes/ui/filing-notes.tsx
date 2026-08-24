@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { testLabel } from "@/entities/bank"
 import type { Issue } from "@/entities/submission"
 import { cn } from "@/shared/lib/utils"
@@ -15,6 +17,8 @@ type Props = {
  * defect is reported and the rows it touched are left out of the reading.
  */
 export function FilingNotes({ issues, skipped }: Props) {
+  const { t } = useTranslation("app")
+
   if (issues.length === 0 && skipped.length === 0) return null
 
   const errors = issues.filter((issue) => issue.level === "error")
@@ -25,11 +29,11 @@ export function FilingNotes({ issues, skipped }: Props) {
       <SectionHead
         aside={
           skipped.length > 0
-            ? `${issues.length} on the data · ${skipped.length} tests skipped`
-            : `${issues.length} on the data`
+            ? `${t("filingNotes.onData", { count: issues.length })} · ${t("filingNotes.testsSkipped", { count: skipped.length })}`
+            : t("filingNotes.onData", { count: issues.length })
         }
       >
-        Remarks
+        {t("filingNotes.remarks")}
       </SectionHead>
 
       <ul className="flex flex-col gap-2.5">
@@ -44,6 +48,7 @@ export function FilingNotes({ issues, skipped }: Props) {
 }
 
 function Remark({ issue }: { issue: Issue }) {
+  const { t } = useTranslation("app")
   const bad = issue.level === "error"
 
   return (
@@ -56,7 +61,7 @@ function Remark({ issue }: { issue: Issue }) {
       <p className="text-sm leading-relaxed text-pretty">{issue.message}</p>
       {/* The tally is already in the sentence, so the line under it just files the remark. */}
       <p className="code mt-1 text-muted-foreground">
-        {bad ? "Error" : "Warning"}
+        {bad ? t("filingNotes.error") : t("filingNotes.warning")}
         {issue.file && ` · ${issue.file}`}
       </p>
     </li>
@@ -64,16 +69,18 @@ function Remark({ issue }: { issue: Issue }) {
 }
 
 function Skipped({ tests }: { tests: string[] }) {
+  const { t } = useTranslation("app")
+  const names = tests.map((test) => testLabel(test).name.toLowerCase()).join(", ")
+  const codes = tests.map((test) => testLabel(test).code).join(" · ")
+
   return (
     <li className="border-l-2 py-0.5 pl-4">
       <p className="text-sm leading-relaxed text-pretty">
-        {tests.length === 1 ? "One test was" : `${tests.length} tests were`} not
-        run: this filing carried no input for{" "}
-        {tests.map((test) => testLabel(test).name.toLowerCase()).join(", ")}. A
-        test that did not run is not a test that passed.
+        {t("filingNotes.skippedLine", { count: tests.length, names })}{" "}
+        {t("filingNotes.skippedCoda")}
       </p>
       <p className="code mt-1 text-muted-foreground">
-        Skipped · {tests.map((test) => testLabel(test).code).join(" · ")}
+        {t("filingNotes.skippedPrefix", { codes })}
       </p>
     </li>
   )

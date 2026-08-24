@@ -64,7 +64,7 @@ class EvidenceOut(BaseModel):
     bank: str
     reasons: list[str] = Field(description="Tests shown, deciding ones first, then advisory.")
     blocks: list[dict] = Field(
-        description="One block per test: {test, title, summary, rows[]}; rows carry `suspect`."
+        description="One block per test: {test, title, summary, rows[], title_key, summary_key, summary_args}."
     )
 
 

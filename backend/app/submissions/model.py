@@ -58,7 +58,15 @@ class Submission(BaseModel):
     files: list[SubmissionFile] = Field(default_factory=list)
     issues: list[Issue] = Field(default_factory=list)
     skipped: list[str] = Field(default_factory=list, description="Tests that had no input.")
-    error: str | None = Field(default=None, description="Why the submission failed, in Russian.")
+    error: str | None = Field(default=None, description="Why the submission failed, shown verbatim.")
+    error_key: str | None = Field(
+        default=None,
+        description="Stable key the dashboard localizes, when the failure is a known one.",
+    )
+    error_params: dict[str, str | int] = Field(
+        default_factory=dict,
+        description="Interpolation values for `error_key`.",
+    )
     total_banks: int | None = None
     suspicious_count: int | None = None
     results: list[BankAudit] = Field(default_factory=list, description="Empty in list views.")

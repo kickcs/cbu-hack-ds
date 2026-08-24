@@ -48,6 +48,7 @@ class SubmissionService:
             self._repo.mark_failed(
                 submission_id,
                 "The service restarted while this filing was being examined — upload it again.",
+                error_key="submission.error.restarted",
             )
         for submission_id in self._repo.pending():
             self._queue.submit(submission_id)
@@ -83,7 +84,12 @@ class SubmissionService:
             self._write_files(submission.id, files, [data for _, data in uploads])
         except OSError as exc:
             log.exception("submission %s: cannot store files", submission.id)
-            self._repo.mark_failed(submission.id, f"The files could not be stored: {exc}")
+            self._repo.mark_failed(
+                submission.id,
+                f"The files could not be stored: {exc}",
+                error_key="submission.error.store_failed",
+                error_params={"detail": str(exc)},
+            )
             return self._repo.get(submission.id) or submission
 
         duplicate = self._duplicate_note(submission.id, files)
@@ -135,10 +141,22 @@ class SubmissionService:
         try:
             run = audit_submission(self.directory(submission_id), submission.files)
         except SubmissionError as exc:
-            self._repo.mark_failed(submission_id, str(exc), seed)
+            self._repo.mark_failed(
+                submission_id,
+                str(exc),
+                seed,
+                error_key=exc.key,
+                error_params=exc.params,
+            )
         except Exception as exc:  # noqa: BLE001 -- an unreadable upload is not a server fault
             log.exception("submission %s failed", submission_id)
-            self._repo.mark_failed(submission_id, f"The examination stopped on an error: {exc}", seed)
+            self._repo.mark_failed(
+                submission_id,
+                f"The examination stopped on an error: {exc}",
+                seed,
+                error_key="submission.error.examination",
+                error_params={"detail": str(exc)},
+            )
         else:
             self._repo.mark_done(
                 submission_id,

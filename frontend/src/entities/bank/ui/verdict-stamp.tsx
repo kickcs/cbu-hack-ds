@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { cn } from "@/shared/lib/utils"
 
 /** The mark an inspector puts on a file once the tests have run. */
@@ -8,6 +10,8 @@ export function VerdictStamp({
   flagged: boolean
   className?: string
 }) {
+  const { t } = useTranslation("ui")
+
   return (
     <span
       className={cn(
@@ -16,7 +20,7 @@ export function VerdictStamp({
         className
       )}
     >
-      {flagged ? "Flagged" : "No findings"}
+      {flagged ? t("verdictStamp.flagged") : t("verdictStamp.noFindings")}
     </span>
   )
 }

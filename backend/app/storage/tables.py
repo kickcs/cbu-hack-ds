@@ -85,6 +85,8 @@ class Submission(Base):
     result_json: Mapped[str | None] = mapped_column(Text)
     skipped_json: Mapped[str] = mapped_column(Text, nullable=False, default="[]")
     error: Mapped[str | None] = mapped_column(Text)
+    error_key: Mapped[str | None] = mapped_column(String)
+    error_params_json: Mapped[str] = mapped_column(Text, nullable=False, default="{}")
     total_banks: Mapped[int | None] = mapped_column(Integer)
     suspicious_count: Mapped[int | None] = mapped_column(Integer)
 

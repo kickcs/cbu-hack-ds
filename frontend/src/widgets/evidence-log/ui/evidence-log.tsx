@@ -1,5 +1,9 @@
+import { useTranslation } from "react-i18next"
+
 import {
   evidenceColumnHead,
+  evidenceSummary,
+  evidenceTitle,
   fmtEvidenceCell,
   testLabel,
   type Evidence,
@@ -10,14 +14,19 @@ import { SectionHead } from "@/shared/ui/section-head"
 
 /** The figures behind each finding, one exhibit per test that fired. */
 export function EvidenceLog({ evidence }: { evidence: Evidence }) {
+  const { t } = useTranslation("app")
+
   if (evidence.blocks.length === 0) return null
 
   return (
     <section className="flex flex-col gap-4">
       <SectionHead
-        aside={`${evidence.blocks.length} exhibit${evidence.blocks.length === 1 ? "" : "s"}`}
+        aside={t("evidence.exhibits", {
+          count: evidence.blocks.length,
+          total: evidence.blocks.length,
+        })}
       >
-        Evidence
+        {t("evidence.title")}
       </SectionHead>
       {evidence.blocks.map((block) => (
         <Exhibit key={block.test} block={block} />
@@ -27,6 +36,7 @@ export function EvidenceLog({ evidence }: { evidence: Evidence }) {
 }
 
 function Exhibit({ block }: { block: EvidenceBlock }) {
+  const { t } = useTranslation("app")
   const columns = block.rows.length
     ? Object.keys(block.rows[0]).filter((key) => key !== "suspect")
     : []
@@ -42,24 +52,27 @@ function Exhibit({ block }: { block: EvidenceBlock }) {
           {testLabel(block.test).code}
         </span>
         <h3 className="font-display text-sm font-semibold tracking-tight">
-          {block.title}
+          {evidenceTitle(block)}
         </h3>
       </header>
 
       <p className="max-w-2xl text-sm leading-relaxed text-pretty text-muted-foreground">
-        {block.summary}
+        {evidenceSummary(block)}
       </p>
 
       <div className="-mx-1 overflow-x-auto px-1">
         <table className="ledger w-full text-left text-[0.8125rem]">
           <caption className="sr-only">
-            {block.title} — {suspects} of {block.rows.length} rows marked
-            suspect
+            {t("evidence.caption", {
+              title: evidenceTitle(block),
+              suspects,
+              total: block.rows.length,
+            })}
           </caption>
           <thead>
             <tr className="border-b">
               <th scope="col" className="w-6">
-                <span className="sr-only">Suspect</span>
+                <span className="sr-only">{t("evidence.suspect")}</span>
               </th>
               {columns.map((column) => (
                 <th
@@ -85,7 +98,7 @@ function Exhibit({ block }: { block: EvidenceBlock }) {
                   {row.suspect && (
                     <span
                       role="img"
-                      aria-label="Suspect"
+                      aria-label={t("evidence.suspect")}
                       className="block size-2 rounded-[1px] bg-destructive"
                     />
                   )}

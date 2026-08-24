@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { cn } from "@/shared/lib/utils"
 
 import type { BenfordDetail } from "../model/types"
@@ -25,6 +27,7 @@ type Props = {
  * law predicts — a control chart, read as "how far is this bar off its mark".
  */
 export function BenfordPlot({ data, tall }: Props) {
+  const { t } = useTranslation("ui")
   const plotHeight = tall ? "h-64" : "h-44"
   const ceiling =
     Math.max(...data.flatMap((d) => [d.empirical, d.theoretical])) * 1.12
@@ -62,7 +65,11 @@ export function BenfordPlot({ data, tall }: Props) {
                 <div
                   key={d.digit}
                   className="relative h-full"
-                  title={`Digit ${d.digit}: observed ${(d.empirical * 100).toFixed(1)}%, expected ${(d.theoretical * 100).toFixed(1)}%`}
+                  title={t("benfordPlot.digitTitle", {
+                    digit: d.digit,
+                    observed: (d.empirical * 100).toFixed(1),
+                    expected: (d.theoretical * 100).toFixed(1),
+                  })}
                 >
                   <div
                     className={cn(
@@ -114,14 +121,14 @@ export function BenfordPlot({ data, tall }: Props) {
       <figcaption className="eyebrow flex flex-wrap items-center gap-x-4 gap-y-1 pl-12">
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2 rounded-[1px] bg-chart-observed" />
-          observed
+          {t("benfordPlot.observed")}
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-0.5 w-3 rounded-full bg-chart-expected" />
-          Benford
+          {t("benfordPlot.benford")}
         </span>
         <span className="normal-case">
-          deviation in percentage points, per digit
+          {t("benfordPlot.deviationCaption")}
         </span>
       </figcaption>
     </figure>

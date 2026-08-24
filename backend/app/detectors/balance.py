@@ -68,6 +68,9 @@ class BalanceIdentityDetector(Detector):
         return {
             "test": self.name,
             "title": "Assets do not equal liabilities",
+            "title_key": "evidence.blocks.balance.title",
             "summary": "Reported assets differ from reported liabilities, breaking the accounting identity.",
+            "summary_key": "evidence.blocks.balance.summary",
+            "summary_args": {},
             "rows": rows,
         }

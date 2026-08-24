@@ -7,10 +7,10 @@ export type {
 } from "./model/types"
 export { isOpen } from "./model/types"
 export {
-  STATUS_LABELS,
-  STATUS_NOTES,
   docketNo,
   filedAt,
+  statusLabel,
+  statusNote,
   tookFor,
 } from "./model/labels"
 export { submissionApi } from "./api/submission-api"

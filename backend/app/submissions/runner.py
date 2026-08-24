@@ -27,6 +27,17 @@ log = logging.getLogger(__name__)
 class SubmissionError(RuntimeError):
     """The submission cannot be audited; the message is shown to the auditor."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        key: str | None = None,
+        params: dict[str, str | int] | None = None,
+    ):
+        super().__init__(message)
+        self.key = key
+        self.params = params or {}
+
 
 @dataclass
 class SubmissionRun:
@@ -42,7 +53,11 @@ def audit_submission(directory: Path, files: list[SubmissionFile]) -> Submission
     """Ingest the submission directory and audit whatever it turned out to contain."""
     loaded = load_dataset(directory)
     if not loaded.roles:
-        raise SubmissionError(_nothing_usable(loaded.issues))
+        raise SubmissionError(
+            _nothing_usable(loaded.issues),
+            key="submission.error.nothing_usable",
+            params=_nothing_usable_params(loaded.issues),
+        )
 
     ctx = AuditContext(register=loaded.register, normativ=loaded.normativ, report=loaded.report)
     active = {d.name for d in runnable(DETECTORS, ctx)}
@@ -52,7 +67,10 @@ def audit_submission(directory: Path, files: list[SubmissionFile]) -> Submission
 
     results = rank_banks(audit_all(loaded.register, loaded.normativ, loaded.report))
     if not results:
-        raise SubmissionError("No bank could be identified in the uploaded files.")
+        raise SubmissionError(
+            "No bank could be identified in the uploaded files.",
+            key="submission.error.no_bank",
+        )
 
     log.info(
         "submission: %s banks, %s suspicious, skipped=%s",
@@ -95,3 +113,10 @@ def _nothing_usable(issues: list[Issue]) -> str:
     # A file that could not even be read failed differently, so it says so as well.
     unreadable = [i for i in errors if i.code != "unrecognized"]
     return " ".join([head, *(f"{i.file}: {i.message}" for i in unreadable[:2])]).strip()
+
+
+def _nothing_usable_params(issues: list[Issue]) -> dict[str, str | int]:
+    """The same rejection, as values the dashboard can localize instead of the sentence."""
+    errors = [i for i in issues if i.level == "error"]
+    names = ", ".join(sorted({i.file for i in errors if i.file}))
+    return {"names": names}

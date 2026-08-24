@@ -1,4 +1,5 @@
 import { useRef, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import { cn } from "@/shared/lib/utils"
 import { Button } from "@/shared/ui/button"
@@ -13,6 +14,7 @@ const ACCEPT = ".csv,.xlsx,.xml"
  * gets to see what is queued up and drop anything picked by mistake.
  */
 export function IntakeWindow() {
+  const { t } = useTranslation("ui")
   const { filing, file } = useFileAReport()
   const [pending, setPending] = useState<File[]>([])
   const [over, setOver] = useState(false)
@@ -67,19 +69,18 @@ export function IntakeWindow() {
           className="sr-only"
         />
 
-        <span className="eyebrow block">Upload Report</span>
+        <span className="eyebrow block">{t("intake.upload")}</span>
 
         <span className="mt-2 block font-display text-lg font-semibold tracking-tight sm:text-xl">
-          Drop files here, or click to choose
+          {t("intake.drop")}
         </span>
 
         <span className="code mt-3 block text-muted-foreground">
-          CSV · XLSX · XML — up to 25 MB each
+          {t("intake.formats")}
         </span>
 
         <span className="mx-auto mt-4 block max-w-md text-xs leading-relaxed text-balance text-muted-foreground">
-          Choose any number of files, review them below, then send them as one
-          filing. Nothing is examined until you press the button.
+          {t("intake.hint")}
         </span>
       </label>
 
@@ -103,7 +104,7 @@ export function IntakeWindow() {
                   disabled={filing}
                   className="code shrink-0 rounded-sm px-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:pointer-events-none"
                 >
-                  remove
+                  {t("intake.remove")}
                 </button>
               </li>
             ))}
@@ -111,10 +112,10 @@ export function IntakeWindow() {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p className="code text-xs text-muted-foreground">
-              {pending.length} file{pending.length === 1 ? "" : "s"} ready
+              {t("intake.ready", { count: pending.length })}
             </p>
             <Button onClick={submit} disabled={filing}>
-              {filing ? "Sending the filing…" : "Upload Report"}
+              {filing ? t("intake.sending") : t("intake.upload")}
             </Button>
           </div>
         </div>

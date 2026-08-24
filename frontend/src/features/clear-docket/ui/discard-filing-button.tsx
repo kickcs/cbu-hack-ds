@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { Trash2Icon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import { docketNo } from "@/entities/submission"
 import { Button } from "@/shared/ui/button"
@@ -11,6 +12,7 @@ import { useDiscardFiling } from "../model/use-clear-docket"
  * to ask in place, and the armed state gives it back if the press was a slip.
  */
 export function DiscardFilingButton({ id }: { id: number }) {
+  const { t } = useTranslation("ui")
   const [armed, setArmed] = useState(false)
   const { discarding, discard } = useDiscardFiling()
 
@@ -30,10 +32,10 @@ export function DiscardFilingButton({ id }: { id: number }) {
           disabled={discarding}
           onClick={() => discard(id)}
         >
-          Discard
+          {t("discard.confirm")}
         </Button>
         <Button variant="ghost" size="xs" onClick={() => setArmed(false)}>
-          Keep
+          {t("discard.keep")}
         </Button>
       </span>
     )
@@ -47,7 +49,9 @@ export function DiscardFilingButton({ id }: { id: number }) {
       className="text-muted-foreground hover:text-destructive"
     >
       <Trash2Icon />
-      <span className="sr-only">Discard filing {docketNo(id)}</span>
+      <span className="sr-only">
+        {t("discard.srLabel", { docket: docketNo(id) })}
+      </span>
     </Button>
   )
 }

@@ -36,6 +36,8 @@ class GrowthJumpDetector(Detector):
 
     title: str
     summary: str
+    title_key: str
+    summary_key: str
 
     @abstractmethod
     def _jump_index(self, growth: list[float]) -> int | None:
@@ -73,7 +75,15 @@ class GrowthJumpDetector(Detector):
                 "suspect": True,
             }
         ]
-        return {"test": self.name, "title": self.title, "summary": self.summary, "rows": rows}
+        return {
+            "test": self.name,
+            "title": self.title,
+            "title_key": self.title_key,
+            "summary": self.summary,
+            "summary_key": self.summary_key,
+            "summary_args": {},
+            "rows": rows,
+        }
 
 
 class DiscontinuityDetector(GrowthJumpDetector):
@@ -81,7 +91,9 @@ class DiscontinuityDetector(GrowthJumpDetector):
 
     name = "discontinuity"
     title = "Break in the reported series"
+    title_key = "evidence.blocks.discontinuity.title"
     summary = "Total assets jump between consecutive months."
+    summary_key = "evidence.blocks.discontinuity.summary"
 
     def _jump_index(self, growth: list[float]) -> int | None:
         mid = growth[:-1]
@@ -93,7 +105,9 @@ class WindowDressingDetector(GrowthJumpDetector):
 
     name = "window_dressing"
     title = "Spike in the closing period"
+    title_key = "evidence.blocks.window_dressing.title"
     summary = "Total assets grow abnormally into the year end."
+    summary_key = "evidence.blocks.window_dressing.summary"
 
     def _jump_index(self, growth: list[float]) -> int | None:
         return len(growth) - 1 if growth else None

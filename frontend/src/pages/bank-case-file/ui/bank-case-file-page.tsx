@@ -1,4 +1,5 @@
 import { ArrowLeftIcon, ArrowRightIcon, ChevronLeftIcon } from "lucide-react"
+import { useTranslation } from "react-i18next"
 
 import type { BankAudit } from "@/entities/bank"
 import { RunAuditButton } from "@/features/run-audit"
@@ -20,6 +21,7 @@ import { useCaseFile } from "../model/use-case-file"
  * page is the reading.
  */
 export function BankCaseFilePage({ bank }: { bank: string }) {
+  const { t } = useTranslation("app")
   const file = useCaseFile(bank)
 
   return (
@@ -57,10 +59,9 @@ export function BankCaseFilePage({ bank }: { bank: string }) {
                 {file.detailFailed && !file.detailLoading && (
                   <p className="border-l-2 border-destructive py-1 pl-4 text-sm text-muted-foreground">
                     <span className="font-medium text-destructive">
-                      Detail unavailable.
+                      {t("caseFile.detailUnavailable")}
                     </span>{" "}
-                    The Benford reading and the evidence for this bank could not
-                    be loaded. Re-run the audit and open the file again.
+                    {t("caseFile.detailUnavailableBody")}
                   </p>
                 )}
 
@@ -89,9 +90,11 @@ function CaseFileNav({
   previous: BankAudit | null
   next: BankAudit | null
 }) {
+  const { t } = useTranslation("app")
+
   return (
     <nav
-      aria-label="Case file"
+      aria-label={t("caseFile.navLabel")}
       className="sticky top-14 z-10 border-b bg-background/90 backdrop-blur"
     >
       <div className="mx-auto flex h-11 max-w-6xl items-center justify-between gap-4 px-5 sm:px-8">
@@ -100,7 +103,7 @@ function CaseFileNav({
           className="code flex items-center gap-1 rounded-sm text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
         >
           <ChevronLeftIcon className="size-3" />
-          All banks
+          {t("caseFile.allBanks")}
         </Link>
 
         <div className="flex min-w-0 items-center gap-4">
@@ -121,13 +124,16 @@ function StepLink({
   audit: BankAudit | null
   direction: "previous" | "next"
 }) {
+  const { t } = useTranslation("app")
   const Icon = direction === "previous" ? ArrowLeftIcon : ArrowRightIcon
 
   if (!audit) {
     return (
       <span className="flex items-center gap-1.5 text-xs text-muted-foreground/50">
         {direction === "previous" && <Icon className="size-3" />}
-        {direction === "previous" ? "First" : "Last"} in rank
+        {direction === "previous"
+          ? t("caseFile.firstInRank")
+          : t("caseFile.lastInRank")}
         {direction === "next" && <Icon className="size-3" />}
       </span>
     )
@@ -146,21 +152,22 @@ function StepLink({
 }
 
 function NoCaseFile({ bank }: { bank: string }) {
+  const { t } = useTranslation("app")
+
   return (
     <section className="flex flex-col items-start gap-4 border-l-2 border-border pl-5">
-      <p className="eyebrow">Case file</p>
+      <p className="eyebrow">{t("caseFile.title")}</p>
       <h1 className="font-display text-2xl font-semibold tracking-tight">
-        No file for “{bank}”
+        {t("caseFile.noFileFor", { bank })}
       </h1>
       <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-        The latest run holds no bank under that name. Run the audit again, or
-        pick a bank from the exception matrix.
+        {t("caseFile.noFileBody")}
       </p>
       <Link
         to={DASHBOARD_PATH}
         className="code rounded-sm text-foreground underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
-        Back to all banks
+        {t("caseFile.backToAllBanks")}
       </Link>
     </section>
   )

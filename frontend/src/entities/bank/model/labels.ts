@@ -1,3 +1,5 @@
+import i18n from "@/shared/lib/i18n"
+
 export type TestLabel = {
   /** Full name, used in the case file and in tooltips. */
   name: string
@@ -23,49 +25,15 @@ export const TEST_ORDER = [
   "last_digit",
 ] as const
 
-const TESTS: Record<string, TestLabel> = {
-  benford: {
-    name: "Benford's law",
-    code: "BEN",
-    about:
-      "First digits of loan amounts against the expected 30.1 / 17.6 / 12.5 % curve",
-  },
-  threshold: {
-    name: "K1 limit",
-    code: "K1",
-    about:
-      "Capital adequacy readings clustering just above the regulatory floor",
-  },
-  rounding: {
-    name: "Round figures",
-    code: "RND",
-    about: "Reported amounts ending in an implausible run of zeros",
-  },
-  arithmetic: {
-    name: "Assets footing",
-    code: "FTG",
-    about: "Reported assets total against the sum of its components",
-  },
-  balance: {
-    name: "Balance identity",
-    code: "BAL",
-    about: "Assets against liabilities — the accounting identity",
-  },
-  discontinuity: {
-    name: "Series break",
-    code: "BRK",
-    about: "Month-to-month jumps inside the reporting year",
-  },
-  window_dressing: {
-    name: "Window dressing",
-    code: "WDR",
-    about: "Balance-sheet growth concentrated in the closing period",
-  },
-  last_digit: {
-    name: "Last digit",
-    code: "LDG",
-    about: "Final digits of loan amounts against a uniform distribution",
-  },
+const TEST_CODES: Record<string, string> = {
+  benford: "BEN",
+  threshold: "K1",
+  rounding: "RND",
+  arithmetic: "FTG",
+  balance: "BAL",
+  discontinuity: "BRK",
+  window_dressing: "WDR",
+  last_digit: "LDG",
 }
 
 function humanise(key: string): string {
@@ -74,18 +42,24 @@ function humanise(key: string): string {
 }
 
 export function testLabel(key: string): TestLabel {
-  return (
-    TESTS[key] ?? {
+  const code = TEST_CODES[key]
+  if (!code) {
+    return {
       name: humanise(key),
       code: key.slice(0, 3).toUpperCase(),
-      about: "Additional statistical test",
+      about: i18n.t("common:tests.unknownAbout"),
     }
-  )
+  }
+
+  return {
+    name: i18n.t(`common:tests.${key}.name`),
+    code,
+    about: i18n.t(`common:tests.${key}.about`),
+  }
 }
 
-export const MAD_LABELS: Record<string, string> = {
-  close: "Close conformity",
-  acceptable: "Acceptable",
-  marginally_acceptable: "Marginal",
-  nonconformity: "Nonconformity",
+/** Human label for a MAD band — null when the band is not one we know. */
+export function madLabel(key: string): string | null {
+  const value = i18n.t(`common:mad.${key}`)
+  return value === `common:mad.${key}` ? null : value
 }
