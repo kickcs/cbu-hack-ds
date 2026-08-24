@@ -169,18 +169,21 @@ class GrowthJumpDetector(Detector):
         if jump is None:
             return empty_evidence()
         transition = f"{jump.previous_period} → {jump.period}"
+        # Key stays `growth`: the dashboard formats that field as a percentage
+        # (frontend/src/entities/bank/lib/format-evidence.ts), and renaming it would
+        # silently drop the evidence table back to raw decimals.
         rows = [
             {
                 "transition": transition,
                 "indicator": _TOTAL_INDICATOR,
-                "change": round(jump.total_change, 4),
+                "growth": round(jump.total_change, 4),
                 "suspect": False,
             }
         ] + [
             {
                 "transition": transition,
                 "indicator": name,
-                "change": round(value, 4),
+                "growth": round(value, 4),
                 "suspect": value > LINE_JUMP,
             }
             for name, value in sorted(jump.changes.items(), key=lambda kv: -kv[1])
