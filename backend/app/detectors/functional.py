@@ -1,8 +1,8 @@
 """Functional façade over the detector classes: one `detect_*` call per violation type.
 
-The audit pipeline drives detectors through the registry, but the tests and the standalone
-notebook (`cbu_full_solution.ipynb`) want to score a single DataFrame without assembling an
-`AuditContext` first. These wrappers are that shortcut -- they add no logic of their own.
+The audit pipeline drives detectors through the registry, but the tests want to score a
+single DataFrame without assembling an `AuditContext` first. These wrappers are that
+shortcut -- they add no logic of their own.
 """
 from __future__ import annotations
 

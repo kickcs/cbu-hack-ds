@@ -28,7 +28,7 @@ def build_settings(data: str | None, out: str | None) -> Settings:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="RegTech statistical audit")
-    parser.add_argument("--data", default=None, help="dataset directory (default: repo root)")
+    parser.add_argument("--data", default=None, help="dataset directory (default: data/ at the repo root)")
     parser.add_argument("--out", default=None, help="output CSV path (russian spec variant)")
     args = parser.parse_args()
 

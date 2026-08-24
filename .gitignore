@@ -1,19 +1,38 @@
+# Dependencies and build output
 node_modules
 dist
-__pycache__
-*.pyc
 .venv
 .venv*/
+
+# Python
+__pycache__
+*.pyc
+*.egg-info/
+.pytest_cache
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Runtime state: SQLite database and uploaded submissions
 regtech.db
 *.sqlite
 *.sqlite3
 .uploads/
-.DS_Store
-Thumbs.db
-.pytest_cache
+
+# Editors, tooling and OS
 .idea/
 .vscode/*
 !.vscode/extensions.json
+.claude/
+.agents/
+skills-lock.json
+.DS_Store
+Thumbs.db
+~$*
+
+# Logs and secrets
 *.log
 .env
 .env.*

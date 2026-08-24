@@ -4,7 +4,7 @@ run:
 	docker compose up --build
 
 audit:
-	cd backend && python3 cli.py --data .. --out ../результат/подозрительные_банки.csv
+	cd backend && python3 cli.py
 
 test:
 	cd backend && python3 -m pytest tests/ -q

@@ -32,8 +32,9 @@ def test_startup_regenerates_result_files_for_the_dataset_on_disk(tmp_path):
     )
     _regenerate_results(AuditService(settings))
 
-    natija = data / "natija" / "shubhali_banklar.csv"
+    natija = tmp_path / "natija" / "shubhali_banklar.csv"
     assert natija.exists()
+    assert not (data / "natija").exists()  # results sit above the dataset, never inside it
     frame = pd.read_csv(natija)
     expected = {b for b, reasons in truth.items() if reasons}
     assert set(frame["bank"]) == expected

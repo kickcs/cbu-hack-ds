@@ -51,28 +51,35 @@ make dev-frontend
 ## Запуск аудита из CLI
 
 ```bash
-cd backend && python cli.py --data .. --out ../результат/подозрительные_банки.csv
+cd backend && python cli.py                 # датасет data/, результат в оба файла ТЗ
+cd backend && python cli.py --data <dir>    # другой датасет (результат ляжет рядом с ним)
 ```
 
 ## Структура
 
 ```
+data/                 # входные данные аудита = DATA_DIR
+  kredit_reyestri.csv   # реестр кредитов (Бенфорд считается только по нему)
+  normativlar.csv       # нормативы K1 / LCR / K3 с их порогами
+  banklar.csv           # справочник банков
+  csv/ xlsx/ xml/       # агрегированная отчётность в трёх форматах
+_javob_kaliti/        # ключ ответа для самопроверки (вне DATA_DIR)
 backend/
   app/
-    benford.py      # first_digit, benford_distribution, MAD, χ², пороги Нигрини
-    ingest.py       # CSV/XLSX/XML -> каноническая модель + синонимы
-    detectors.py    # threshold / rounding / arithmetic / discontinuity / window_dressing
-    audit.py        # is_sample_sufficient(n), score_bank, rank_banks
-    bootstrap.py    # бутстрап-калибровка порога (95-й перцентиль)
-    db.py           # SQLite, битемпоральность (period + received_at)
-    main.py         # FastAPI: /api/meta, /api/audit/run, /api/audit/latest, /api/banks/{bank}/benford
-  tests/            # pytest: benford + guard n<300 + детекторы + ingestion
-  DECISIONS.md      # обоснование алгоритмов, порогов, Big-O, краевых случаев
-  cli.py            # автономный прогон аудита в CSV
-frontend/
-  src/App.tsx       # дашборд аудитора
-  src/lib/api.ts    # клиент API
-  src/components/benford-chart.tsx
+    ingest/             # CSV/XLSX/XML -> каноническая модель + синонимы + классификация
+    benford/            # first_digit, MAD, χ², пороги Нигрини + бутстрап-калибровка
+    detectors/          # threshold / rounding / arithmetic / discontinuity / window_dressing
+    audit/              # тест по банку, audit_all, rank_banks, формат результата, улики
+    storage/            # SQLite, битемпоральность (period + received_at)
+    submissions/        # загруженные отчёты как заявки: очередь, воркер, изоляция
+    sampling.py         # MIN_SAMPLE = 300, is_sample_sufficient(n)
+    service.py          # AuditService — один пайплайн для API и CLI
+    config.py           # все пути: DATA_DIR, output_dir, DB_PATH, .uploads
+    api/                # FastAPI: health / meta / audit / banks / submissions
+  tests/              # pytest: benford + guard n<300 + детекторы + ingestion + заявки
+  cli.py              # автономный прогон аудита в CSV
+frontend/src/         # React + FSD: app / pages / widgets / features / entities / shared
+DECISIONS.md          # обоснование алгоритмов, порогов, Big-O, краевых случаев
 результат/подозрительные_банки.csv   # русская версия ТЗ (банк, значение_mad, причина)
 natija/shubhali_banklar.csv          # официальная версия ТЗ (bank, mad_qiymati, sabab)
 Makefile

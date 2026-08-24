@@ -3,12 +3,12 @@ services:
     build: ./backend
     container_name: regtech-backend
     environment:
-      DATA_DIR: /data
-      DB_PATH: /data/regtech.db
+      DATA_DIR: /repo/data
+      DB_PATH: /repo/regtech.db
     ports:
       - "8000:8000"
     volumes:
-      - .:/data
+      - .:/repo
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
   frontend:
