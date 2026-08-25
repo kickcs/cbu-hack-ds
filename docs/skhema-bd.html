@@ -1,0 +1,478 @@
+<title>regtech.db</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Source+Sans+3:wght@400;600&display=swap">
+
+<style>
+  :root {
+    --ink: #131A24;
+    --paper: #F6F7F9;
+    --surface: #FFFFFF;
+    --line: #DBE0E6;
+    --slate: #5B6675;
+    --brass: #A8762A;
+    --brass-soft: #F0E4CE;
+    --blue: #3E6B9E;
+    --blue-soft: #E2EAF3;
+
+    --bg: var(--paper);
+    --card: var(--surface);
+    --text: var(--ink);
+    --muted: var(--slate);
+    --rule: var(--line);
+    --accent: var(--brass);
+    --accent-wash: var(--brass-soft);
+    --link: var(--blue);
+    --link-wash: var(--blue-soft);
+
+    --entity-fill: #FFFFFF;
+    --entity-head: #EFF2F5;
+    --entity-stroke: #C6CDD6;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151C;
+      --card: #171E27;
+      --text: #E7EBF0;
+      --muted: #98A3B2;
+      --rule: #2A333F;
+      --accent: #D9A94B;
+      --accent-wash: #33280F;
+      --link: #7FA9D8;
+      --link-wash: #1B2836;
+      --entity-fill: #1B232E;
+      --entity-head: #232D3A;
+      --entity-stroke: #38424F;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #10151C;
+    --card: #171E27;
+    --text: #E7EBF0;
+    --muted: #98A3B2;
+    --rule: #2A333F;
+    --accent: #D9A94B;
+    --accent-wash: #33280F;
+    --link: #7FA9D8;
+    --link-wash: #1B2836;
+    --entity-fill: #1B232E;
+    --entity-head: #232D3A;
+    --entity-stroke: #38424F;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  h1, h2, h3 {
+    font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+    text-wrap: balance;
+    margin: 0;
+    letter-spacing: -0.015em;
+  }
+  h1 { font-size: 2.4rem; font-weight: 700; }
+  h2 { font-size: 1.35rem; font-weight: 600; }
+  h3 { font-size: 1rem; font-weight: 600; }
+
+  p { margin: 0; max-width: 68ch; }
+
+  .eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  header { display: flex; flex-direction: column; gap: 12px; }
+  header p { color: var(--muted); font-size: 1.05rem; }
+
+  section { display: flex; flex-direction: column; gap: 20px; }
+
+  .section-head { display: flex; flex-direction: column; gap: 6px; }
+  .section-head p { color: var(--muted); }
+
+  /* ── diagram ───────────────────────────────── */
+  .diagram {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 8px;
+    overflow-x: auto;
+  }
+  .diagram svg { display: block; width: 100%; min-width: 780px; height: auto; }
+
+  .e-box { fill: var(--entity-fill); stroke: var(--entity-stroke); stroke-width: 1; }
+  .e-head { fill: var(--entity-head); }
+  .e-name {
+    font-family: "JetBrains Mono", monospace; font-size: 13px; font-weight: 700;
+    fill: var(--text);
+  }
+  .e-count {
+    font-family: "JetBrains Mono", monospace; font-size: 11px; fill: var(--muted);
+  }
+  .e-col {
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px; fill: var(--text);
+  }
+  .e-type {
+    font-family: "JetBrains Mono", monospace; font-size: 11.5px; fill: var(--muted);
+  }
+  .e-key { fill: var(--accent); font-weight: 700; }
+  .e-rule { stroke: var(--rule); stroke-width: 1; }
+  .rel { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+  .rel-soft { stroke: var(--link); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; }
+  .rel-label {
+    font-family: "JetBrains Mono", monospace; font-size: 10.5px; fill: var(--muted);
+  }
+  .rel-label-soft { fill: var(--link); }
+
+  /* ── table cards ───────────────────────────── */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--entity-head);
+  }
+  .card-head .name {
+    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 0.95rem;
+  }
+  .card-head .rows {
+    font-family: "JetBrains Mono", monospace; font-size: 0.78rem; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .card-note { padding: 12px 18px 0; color: var(--muted); font-size: 0.9rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  th, td { text-align: left; padding: 7px 18px; }
+  th {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); border-bottom: 1px solid var(--rule);
+  }
+  td { border-bottom: 1px solid var(--rule); font-family: "JetBrains Mono", monospace; }
+  tr:last-child td { border-bottom: none; }
+  td.col { font-weight: 500; }
+  td.type { color: var(--muted); }
+  td.flag { width: 1%; white-space: nowrap; }
+
+  .tag {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.66rem; font-weight: 700; letter-spacing: 0.06em;
+    padding: 1px 6px; border-radius: 3px;
+  }
+  .tag-pk { background: var(--accent-wash); color: var(--accent); }
+  .tag-idx { background: var(--link-wash); color: var(--link); }
+  .tag-null { background: transparent; color: var(--muted); font-weight: 400; }
+
+  /* ── time axes ─────────────────────────────── */
+  .axes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+  .axis {
+    background: var(--card); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 20px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .axis .k {
+    font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 0.92rem;
+    color: var(--accent);
+  }
+  .axis p { font-size: 0.94rem; color: var(--muted); }
+
+  .callout {
+    border-left: 2px solid var(--accent);
+    padding: 4px 0 4px 18px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .callout p { font-size: 0.96rem; }
+
+  ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+  li { max-width: 66ch; }
+  code {
+    font-family: "JetBrains Mono", monospace; font-size: 0.88em;
+    background: var(--entity-head); padding: 1px 5px; border-radius: 3px;
+  }
+
+  footer {
+    border-top: 1px solid var(--rule); padding-top: 20px;
+    color: var(--muted); font-size: 0.86rem;
+    font-family: "JetBrains Mono", monospace;
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">SQLite · SQLAlchemy · backend/app/storage</div>
+    <h1>regtech.db</h1>
+    <p>Четыре таблицы, в которых аудит банковской отчётности хранит исходные файлы, канонические
+       строки отчёта и вердикты каждого прогона. Числа — из фактического прогона на открытом
+       датасете.</p>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <h2>Схема</h2>
+      <p>Сплошная линия — поток данных. Пунктир — связь по ключу, которая существует
+         в приложении, но не объявлена в базе.</p>
+    </div>
+
+    <div class="diagram">
+      <svg viewBox="0 0 960 470" xmlns="http://www.w3.org/2000/svg" role="img"
+           aria-label="ER-диаграмма: raw_files, report_lines, audit_runs, audit_results">
+
+        <!-- raw_files -->
+        <g>
+          <rect class="e-box" x="24" y="34" width="216" height="152" rx="3"/>
+          <path class="e-head" d="M24 37a3 3 0 0 1 3-3h210a3 3 0 0 1 3 3v25H24z"/>
+          <line class="e-rule" x1="24" y1="62" x2="240" y2="62"/>
+          <text class="e-name" x="38" y="54">raw_files</text>
+          <text class="e-count" x="226" y="54" text-anchor="end">12</text>
+          <text class="e-col" x="38" y="82">id <tspan class="e-key">PK</tspan></text>
+          <text class="e-col" x="38" y="102">file_path</text>
+          <text class="e-col" x="38" y="122">format</text>
+          <text class="e-col" x="38" y="142">content <tspan class="e-type">blob</tspan></text>
+          <text class="e-col" x="38" y="162">received_at</text>
+        </g>
+
+        <!-- report_lines -->
+        <g>
+          <rect class="e-box" x="352" y="14" width="216" height="192" rx="3"/>
+          <path class="e-head" d="M352 17a3 3 0 0 1 3-3h210a3 3 0 0 1 3 3v25H352z"/>
+          <line class="e-rule" x1="352" y1="42" x2="568" y2="42"/>
+          <text class="e-name" x="366" y="34">report_lines</text>
+          <text class="e-count" x="554" y="34" text-anchor="end">1 014</text>
+          <text class="e-col" x="366" y="62">id <tspan class="e-key">PK</tspan></text>
+          <text class="e-col" x="366" y="82">bank <tspan class="e-type">idx</tspan></text>
+          <text class="e-col" x="366" y="102">period</text>
+          <text class="e-col" x="366" y="122">indicator</text>
+          <text class="e-col" x="366" y="142">tip</text>
+          <text class="e-col" x="366" y="162">summa</text>
+          <text class="e-col" x="366" y="182">received_at</text>
+        </g>
+
+        <!-- audit_runs -->
+        <g>
+          <rect class="e-box" x="352" y="316" width="216" height="112" rx="3"/>
+          <path class="e-head" d="M352 319a3 3 0 0 1 3-3h210a3 3 0 0 1 3 3v25H352z"/>
+          <line class="e-rule" x1="352" y1="344" x2="568" y2="344"/>
+          <text class="e-name" x="366" y="336">audit_runs</text>
+          <text class="e-count" x="554" y="336" text-anchor="end">1</text>
+          <text class="e-col" x="366" y="364">id <tspan class="e-key">PK</tspan></text>
+          <text class="e-col" x="366" y="384">ran_at</text>
+          <text class="e-col" x="366" y="404">config <tspan class="e-type">json</tspan></text>
+        </g>
+
+        <!-- audit_results -->
+        <g>
+          <rect class="e-box" x="700" y="126" width="236" height="212" rx="3"/>
+          <path class="e-head" d="M700 129a3 3 0 0 1 3-3h230a3 3 0 0 1 3 3v25H700z"/>
+          <line class="e-rule" x1="700" y1="154" x2="936" y2="154"/>
+          <text class="e-name" x="714" y="146">audit_results</text>
+          <text class="e-count" x="922" y="146" text-anchor="end">13</text>
+          <text class="e-col" x="714" y="174">run_id <tspan class="e-key">PK</tspan></text>
+          <text class="e-col" x="714" y="194">bank <tspan class="e-key">PK</tspan></text>
+          <text class="e-col" x="714" y="214">mad, chi2, chi2_p</text>
+          <text class="e-col" x="714" y="234">mad_label</text>
+          <text class="e-col" x="714" y="254">sample_size, dropped</text>
+          <text class="e-col" x="714" y="274">reason</text>
+          <text class="e-col" x="714" y="294">composite</text>
+          <text class="e-col" x="714" y="314">suspicious</text>
+        </g>
+
+        <!-- relations -->
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/>
+          </marker>
+          <marker id="arrow-soft" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--link)"/>
+          </marker>
+        </defs>
+
+        <path class="rel" d="M240 110 L352 110" marker-end="url(#arrow)"/>
+        <text class="rel-label" x="296" y="100" text-anchor="middle">разбор</text>
+
+        <path class="rel" d="M568 110 L636 110 L636 190 L700 190" marker-end="url(#arrow)"/>
+        <text class="rel-label" x="652" y="102" text-anchor="middle">аудит</text>
+
+        <path class="rel-soft" d="M568 372 L636 372 L636 272 L700 272" marker-end="url(#arrow-soft)"/>
+        <text class="rel-label rel-label-soft" x="604" y="392" text-anchor="middle">run_id</text>
+        <text class="rel-label rel-label-soft" x="604" y="406" text-anchor="middle">1 : N</text>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Таблицы</h2>
+      <p>Полный состав колонок. Тип — как объявлен в <code>storage/tables.py</code>.</p>
+    </div>
+
+    <div class="cards">
+
+      <div class="card">
+        <div class="card-head">
+          <span class="name">raw_files</span>
+          <span class="rows">12 строк</span>
+        </div>
+        <p class="card-note">Каждый исходный файл байт в байт: 7 csv, 4 xlsx, 1 xml. След, по
+           которому прогон восстанавливается до тех самых данных, что читал.</p>
+        <table>
+          <thead><tr><th>колонка</th><th>тип</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="col">id</td><td class="type">integer</td><td class="flag"><span class="tag tag-pk">PK</span></td></tr>
+            <tr><td class="col">file_path</td><td class="type">string</td><td class="flag"></td></tr>
+            <tr><td class="col">format</td><td class="type">string</td><td class="flag"></td></tr>
+            <tr><td class="col">content</td><td class="type">blob</td><td class="flag"></td></tr>
+            <tr><td class="col">received_at</td><td class="type">string</td><td class="flag"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="name">report_lines</span>
+          <span class="rows">1 014 строк</span>
+        </div>
+        <p class="card-note">Канонический отчёт после сведе́ния трёх форматов: 13 банков × 6 месяцев
+           × 13 показателей.</p>
+        <table>
+          <thead><tr><th>колонка</th><th>тип</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="col">id</td><td class="type">integer</td><td class="flag"><span class="tag tag-pk">PK</span></td></tr>
+            <tr><td class="col">bank</td><td class="type">string</td><td class="flag"><span class="tag tag-idx">IDX</span></td></tr>
+            <tr><td class="col">period</td><td class="type">string</td><td class="flag"></td></tr>
+            <tr><td class="col">indicator</td><td class="type">string</td><td class="flag"></td></tr>
+            <tr><td class="col">tip</td><td class="type">string</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">summa</td><td class="type">float</td><td class="flag"></td></tr>
+            <tr><td class="col">received_at</td><td class="type">string</td><td class="flag"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="name">audit_runs</span>
+          <span class="rows">1 строка</span>
+        </div>
+        <p class="card-note">Один прогон аудита и конфигурация, под которой он шёл — сейчас это
+           порог MAD.</p>
+        <table>
+          <thead><tr><th>колонка</th><th>тип</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="col">id</td><td class="type">integer</td><td class="flag"><span class="tag tag-pk">PK</span></td></tr>
+            <tr><td class="col">ran_at</td><td class="type">string</td><td class="flag"></td></tr>
+            <tr><td class="col">config</td><td class="type">text</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="name">audit_results</span>
+          <span class="rows">13 строк</span>
+        </div>
+        <p class="card-note">Вердикт по каждому банку внутри одного прогона. Ключ составной —
+           <code>(run_id, bank)</code>, поэтому история прогонов не затирается.</p>
+        <table>
+          <thead><tr><th>колонка</th><th>тип</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="col">run_id</td><td class="type">integer</td><td class="flag"><span class="tag tag-pk">PK</span></td></tr>
+            <tr><td class="col">bank</td><td class="type">string</td><td class="flag"><span class="tag tag-pk">PK</span></td></tr>
+            <tr><td class="col">sample_size</td><td class="type">integer</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">dropped</td><td class="type">integer</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">mad</td><td class="type">float</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">chi2</td><td class="type">float</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">chi2_p</td><td class="type">float</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">mad_label</td><td class="type">string</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">benford_flagged</td><td class="type">integer</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">reason</td><td class="type">string</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">composite</td><td class="type">float</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+            <tr><td class="col">suspicious</td><td class="type">integer</td><td class="flag"><span class="tag tag-null">null</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Две оси времени</h2>
+      <p>Требование ТЗ §7. Обе живут в отдельных колонках и нигде не смешиваются — это позволяет
+         принять более позднюю подачу за более ранний период, ничего не затирая.</p>
+    </div>
+    <div class="axes">
+      <div class="axis">
+        <span class="k">period</span>
+        <p>Период, к которому относятся цифры. Приходит из самого отчёта: <code>2025-10</code> …
+           <code>2026-03</code>.</p>
+      </div>
+      <div class="axis">
+        <span class="k">received_at</span>
+        <p>Когда файл дошёл до системы. Проставляется при загрузке — в исходных данных такой
+           колонки нет вовсе.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>Чего в схеме нет</h2>
+      <p>Три вещи, которые видно только по коду.</p>
+    </div>
+    <div class="callout">
+      <p><strong>Внешних ключей не объявлено.</strong> Связь <code>audit_results.run_id →
+         audit_runs.id</code> держится на приложении: <code>start_run()</code> возвращает id,
+         который <code>store_audit_results()</code> проставляет в строки. База её не проверяет —
+         на диаграмме это пунктир.</p>
+      <p><strong>Таблицы банков нет.</strong> <code>bank</code> — просто строка и в
+         <code>report_lines</code>, и в <code>audit_results</code>. Справочник
+         <code>banklar.csv</code> в базу не попадает, а сопоставление идёт по совпадению имени.</p>
+      <p><strong>Реестр кредитов и нормативы не становятся таблицами.</strong>
+         <code>kredit_reyestri.csv</code> (26 726 строк) и <code>normativlar.csv</code> читаются
+         с диска на каждом прогоне и в разобранном виде не сохраняются — в базе от них остаются
+         только байты в <code>raw_files</code>. Поэтому тест Бенфорда всегда работает по свежему
+         файлу, а не по слепку.</p>
+    </div>
+  </section>
+
+  <footer>
+    backend/app/storage/tables.py · backend/app/storage/repository.py — ветка test
+  </footer>
+
+</div>

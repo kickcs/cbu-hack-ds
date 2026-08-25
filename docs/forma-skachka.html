@@ -1,0 +1,512 @@
+<title>Форма скачка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Source+Sans+3:wght@400;600&display=swap">
+
+<style>
+:root{
+  --bg:#FAF9F6; --card:#FFFFFF; --sunk:#F1EFE9;
+  --text:#14191C; --muted:#6B7580; --rule:#E2E0DA;
+  --brass:#A8762A; --brass-wash:#F3E8D2;
+  --conc:#B84A2E; --conc-wash:#F7E2DB;
+  --broad:#26706A; --broad-wash:#DCEDEB;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1316; --card:#161C21; --sunk:#1B2228;
+    --text:#E6E9EC; --muted:#93A0A8; --rule:#262F35;
+    --brass:#D2A253; --brass-wash:#332715;
+    --conc:#E08262; --conc-wash:#361F17;
+    --broad:#5FB3A8; --broad-wash:#14302D;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1316; --card:#161C21; --sunk:#1B2228;
+  --text:#E6E9EC; --muted:#93A0A8; --rule:#262F35;
+  --brass:#D2A253; --brass-wash:#332715;
+  --conc:#E08262; --conc-wash:#361F17;
+  --broad:#5FB3A8; --broad-wash:#14302D;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Source Sans 3",ui-sans-serif,system-ui,sans-serif;font-size:16.5px;line-height:1.62;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:52px 22px 110px;display:flex;flex-direction:column;gap:66px}
+h1,h2,h3{font-family:Archivo,sans-serif;margin:0;text-wrap:balance;letter-spacing:-.015em}
+h1{font-size:2.5rem;font-weight:700}
+h2{font-size:1.5rem;font-weight:600}
+h3{font-size:1.02rem;font-weight:600}
+p{margin:0;max-width:70ch}
+code{font-family:"JetBrains Mono",monospace;font-size:.87em;background:var(--sunk);padding:1px 5px;border-radius:3px}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:.71rem;font-weight:500;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--brass)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:22px}
+.shead{display:flex;flex-direction:column;gap:7px}
+.shead p{color:var(--muted)}
+header{display:flex;flex-direction:column;gap:14px}
+header p.lead{font-size:1.1rem;color:var(--muted)}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:22px;
+  display:flex;flex-direction:column;gap:16px}
+pre{margin:0;background:var(--sunk);border:1px solid var(--rule);border-radius:4px;padding:14px 16px;
+  overflow-x:auto;font-family:"JetBrains Mono",monospace;font-size:.82rem;line-height:1.65}
+.mono{font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* problem: window slider */
+.winbox{display:flex;flex-direction:column;gap:16px}
+.winctl{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.winctl input[type=range]{flex:1;min-width:200px;accent-color:var(--brass)}
+.winctl .lab{font-family:"JetBrains Mono",monospace;font-size:.85rem;min-width:150px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.cmp{grid-template-columns:1fr}}
+.cmpcard{border:1px solid var(--rule);border-radius:4px;padding:15px 17px;display:flex;flex-direction:column;gap:9px;background:var(--sunk)}
+.cmpcard h3{font-size:.9rem;font-family:"JetBrains Mono",monospace}
+.cmpcard.bad{border-color:var(--conc)}
+.verdict-line{font-family:"JetBrains Mono",monospace;font-size:.85rem;display:flex;gap:8px;align-items:baseline}
+.verdict-line .t{color:var(--muted);min-width:120px}
+.verdict-line .v{font-weight:700}
+.v.disc{color:var(--broad)}
+.v.win{color:var(--conc)}
+.v.none{color:var(--muted);font-weight:400}
+.flagmark{font-size:.78rem;padding:1px 7px;border-radius:3px;font-family:"JetBrains Mono",monospace}
+.flagmark.err{background:var(--conc-wash);color:var(--conc)}
+.flagmark.ok{background:var(--broad-wash);color:var(--broad)}
+
+/* lab */
+.lab{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:26px;align-items:start}
+@media(max-width:860px){.lab{grid-template-columns:1fr}}
+.sliders{display:flex;flex-direction:column;gap:9px}
+.srow{display:grid;grid-template-columns:170px 1fr 56px;gap:10px;align-items:center}
+@media(max-width:520px){.srow{grid-template-columns:120px 1fr 50px}}
+.srow label{font-family:"JetBrains Mono",monospace;font-size:.76rem;color:var(--muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow input{width:100%;accent-color:var(--brass)}
+.srow input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.srow .val{font-family:"JetBrains Mono",monospace;font-size:.78rem;text-align:right;font-variant-numeric:tabular-nums}
+.srow.peak label,.srow.peak .val{color:var(--conc);font-weight:700}
+.presets{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:4px}
+.pbtn{font:inherit;font-family:"JetBrains Mono",monospace;font-size:.77rem;cursor:pointer;
+  padding:5px 10px;border-radius:3px;border:1px solid var(--rule);background:var(--card);color:var(--text)}
+.pbtn:hover{border-color:var(--brass)}
+.pbtn:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+
+.readout{display:flex;flex-direction:column;gap:0}
+.mrow{display:flex;flex-direction:column;gap:3px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.mrow .top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.mrow .k{font-family:"JetBrains Mono",monospace;font-size:.75rem;color:var(--muted)}
+.mrow .v{font-family:"JetBrains Mono",monospace;font-size:1.05rem;font-weight:700;font-variant-numeric:tabular-nums}
+.mrow .v.hit{color:var(--conc)}
+.mrow .v.miss{color:var(--broad)}
+.track{height:5px;background:var(--sunk);border-radius:3px;position:relative;overflow:hidden}
+.track .fill{position:absolute;inset:0 auto 0 0;background:var(--broad)}
+.track .fill.hit{background:var(--conc)}
+.track .cut{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text)}
+.mrow .note{font-size:.74rem;color:var(--muted);font-family:"JetBrains Mono",monospace}
+.final{margin-top:14px;padding:15px 17px;border-radius:4px;display:flex;flex-direction:column;gap:5px;
+  border:1px solid var(--rule)}
+.final.conc{background:var(--conc-wash);border-color:var(--conc)}
+.final.broad{background:var(--broad-wash);border-color:var(--broad)}
+.final .lbl{font-family:"JetBrains Mono",monospace;font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.final .res{font-family:Archivo,sans-serif;font-weight:700;font-size:1.05rem}
+.final.conc .res{color:var(--conc)}
+.final.broad .res{color:var(--broad)}
+.final .votes{font-family:"JetBrains Mono",monospace;font-size:.8rem;color:var(--muted)}
+.undetected{opacity:.45}
+
+.vecchart{width:100%;height:auto;display:block;margin-top:6px}
+.vbar{fill:var(--brass)}
+.vbar.peak{fill:var(--conc)}
+.vmed{stroke:var(--text);stroke-width:1.4;stroke-dasharray:4 3}
+.vt{font-family:"JetBrains Mono",monospace;font-size:10px;fill:var(--muted)}
+
+/* metric cards */
+.mcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.mcard{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:19px;
+  display:flex;flex-direction:column;gap:10px}
+.mcard .nm{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:.9rem;color:var(--brass)}
+.mcard .frm{font-family:"JetBrains Mono",monospace;font-size:.8rem;background:var(--sunk);
+  padding:9px 11px;border-radius:3px;overflow-x:auto}
+.mcard p{font-size:.92rem}
+.mcard .ref{font-size:.8rem;color:var(--muted);font-family:"JetBrains Mono",monospace}
+
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+.tscroll{overflow-x:auto;background:var(--card);border:1px solid var(--rule);border-radius:4px}
+th,td{text-align:left;padding:8px 12px;white-space:nowrap}
+th{font-family:"JetBrains Mono",monospace;font-size:.67rem;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);border-bottom:1px solid var(--rule)}
+td{border-bottom:1px solid var(--rule);font-family:"JetBrains Mono",monospace;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+td.c{color:var(--conc);font-weight:700}
+td.b{color:var(--broad)}
+tr.dim td{color:var(--muted)}
+
+.gbox{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.gcase{background:var(--card);border:1px solid var(--rule);border-radius:4px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:7px}
+.gcase .cs{font-family:"JetBrains Mono",monospace;font-size:.82rem;color:var(--muted)}
+.gcase .rs{font-family:"JetBrains Mono",monospace;font-size:.9rem;font-weight:700}
+.gcase.safe{border-left:2px solid var(--broad)}
+.foot{border-top:1px solid var(--rule);padding-top:18px;color:var(--muted);font-size:.85rem;
+  font-family:"JetBrains Mono",monospace}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">ветка test · detectors/shape.py + growth.py + arithmetic.py</div>
+  <h1>Форма скачка</h1>
+  <p class="lead">Два детектора — «разрыв в ряду» и «накачка к отчётной дате» — смотрят на одно
+     и то же событие и должны как-то разойтись. В ветке <code>main</code> они расходятся по тому,
+     в каком периоде случился скачок. Мы заменили это на то, <em>какой формы</em> скачок,
+     и добавили третью метрику, которая выводит эталон из самих данных.</p>
+</header>
+
+<section>
+  <div class="shead">
+    <h2>Почему позиция не работает</h2>
+    <p>Правило «скачок в последнем периоде = накачка» описывает не явление, а границу окна данных.
+       Подвиньте ползунок — окно укоротится, и старое правило переклеит метки.</p>
+  </div>
+  <div class="panel winbox">
+    <div class="winctl">
+      <span class="lab" id="winlab"></span>
+      <input type="range" id="win" min="4" max="6" step="1" value="6" aria-label="Число периодов в окне">
+    </div>
+    <div class="cmp">
+      <div class="cmpcard bad" id="oldcard">
+        <h3>было — по позиции</h3>
+        <div id="oldres"></div>
+      </div>
+      <div class="cmpcard" id="newcard">
+        <h3>стало — по форме</h3>
+        <div id="newres"></div>
+      </div>
+    </div>
+    <p class="muted" style="font-size:.9rem">При пяти периодах Hamkor у старого правила становится
+      «накачкой» — только потому, что его скачок оказался последним в укороченном окне. При четырёх
+      он не попадает в окно вовсе, и это правильный ответ: банк отсутствует, а не получает чужую метку.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Что на самом деле различает эти два случая</h2>
+    <p>Одинаковый по величине скачок может иметь совершенно разное устройство.</p>
+  </div>
+  <div class="cmp">
+    <div class="cmpcard">
+      <h3 style="color:var(--broad)">Hamkor · сдвиг уровня</h3>
+      <p class="muted" style="font-size:.9rem">Двигаются все девять статей сразу, в узком коридоре.
+         Так выглядит пересчёт, слияние или ошибка масштаба.</p>
+      <svg class="vecchart" id="vec-hamkor" viewBox="0 0 480 130" role="img" aria-label="Изменения статей Hamkor"></svg>
+    </div>
+    <div class="cmpcard">
+      <h3 style="color:var(--conc)">Universal · точечная накачка</h3>
+      <p class="muted" style="font-size:.9rem">Двигаются две статьи — касса и депозиты населения,
+         то есть ровно то, по чему судят о ликвидности. Остальное стоит.</p>
+      <svg class="vecchart" id="vec-universal" viewBox="0 0 480 130" role="img" aria-label="Изменения статей Universal"></svg>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Лаборатория</h2>
+    <p>Двигайте статьи и смотрите, как три метрики пересчитываются и переключают вердикт.
+       Кнопки сверху загружают настоящие банки.</p>
+  </div>
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="lab">
+      <div>
+        <div class="sliders" id="sliders"></div>
+        <svg class="vecchart" id="vec-live" viewBox="0 0 480 130" role="img" aria-label="Текущий вектор изменений"></svg>
+      </div>
+      <div>
+        <div class="readout" id="readout"></div>
+        <div class="final" id="final"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Три метрики</h2>
+    <p>Намеренно устроены по-разному: порядковая статистика, фиксированная геометрия и эталон,
+       выученный из данных. Общая ошибка у них маловероятна.</p>
+  </div>
+  <div class="mcards">
+    <div class="mcard">
+      <span class="nm">breadth</span>
+      <div class="frm">median(v) / max(v)</div>
+      <p>Насколько типичная статья похожа на самую резкую. Если двигаются все — медиана близка
+         к максимуму. Если одна — медиана почти ноль.</p>
+      <p class="ref">эталона нет · порог &lt; 0.20 → концентрированный</p>
+    </div>
+    <div class="mcard">
+      <span class="nm">uniformity</span>
+      <div class="frm">cos(v, 1) = (v·1) / (|v|·√n)</div>
+      <p>Угол между вектором изменений и направлением «все статьи поровну». Это то же самое, что
+         евклидово расстояние на единичной сфере: <code>|v̂−û|² = 2(1−cos)</code> — проверено
+         отдельным тестом.</p>
+      <p class="ref">эталон задан заранее · порог &lt; 0.65</p>
+    </div>
+    <div class="mcard">
+      <span class="nm">pc1_alignment</span>
+      <div class="frm">|v·PC1| / |v|</div>
+      <p>То же самое, но эталон не постулируется, а извлекается из панели всех банк-периодов
+         методом главных компонент. Отвечает на возражение «почему нормальным считается именно
+         равномерное движение».</p>
+      <p class="ref">эталон выучен · порог &lt; 0.70</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Что сказал PCA</h2>
+    <p>Первая главная компонента считается один раз на прогон по всей панели изменений.</p>
+  </div>
+  <div class="panel">
+    <div class="cmp">
+      <div>
+        <p>Матрица из <b id="prows"></b> банк-периодов, каждая строка нормирована к единичной
+           длине — вопрос в том, какие статьи двигаются <em>вместе</em>, а не насколько сильно.
+           Дальше обычное SVD, берём первый правый сингулярный вектор.</p>
+        <pre>unit = X / |X|            построчная нормировка
+PC1  = svd(unit).Vt[0]     первое главное направление</pre>
+      </div>
+      <div>
+        <div class="mrow"><div class="top"><span class="k">доля дисперсии PC1</span>
+          <span class="v" id="pvar"></span></div>
+          <span class="note">одно направление объясняет большую часть всех движений</span></div>
+        <div class="mrow"><div class="top"><span class="k">cos(PC1, равномерное)</span>
+          <span class="v" id="pcos"></span></div>
+          <span class="note">панель подтвердила допущение метрики uniformity</span></div>
+      </div>
+    </div>
+    <svg class="vecchart" id="vec-pc1" viewBox="0 0 480 120" role="img" aria-label="Вектор PC1"></svg>
+    <p class="muted" style="font-size:.9rem">Компоненты PC1 почти одинаковы по всем девяти статьям —
+       именно поэтому косинус с равномерным направлением получается 0.997. Метрика
+       <code>uniformity</code> опиралась на догадку; PCA показал, что догадка верна для этих данных.
+       Если панель окажется меньше 20 строк, <code>fit_pc1</code> вернёт <code>None</code>,
+       и голосовать будут двое.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Голосование</h2>
+    <p>Любой отдельный порог можно оспорить. Три способа посчитать, дающие один ответ, — труднее.
+       Расхождение не прячется, а показывается аудитору.</p>
+  </div>
+  <div class="tscroll"><table id="votes"></table></div>
+  <p class="muted" style="font-size:.9rem">Детекция и классификация разделены: сначала проверяется,
+     был ли вообще скачок (максимальное изменение статьи &gt; <span class="mono" id="lj"></span>),
+     и только у прошедших смотрится форма. У остальных одиннадцати банков скачка нет — метрики
+     формы для них посчитаны, но ни на что не влияют.</p>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Защита арифметики</h2>
+    <p>Второе изменение, не про форму. Если ingestion не опознал название статьи, строка молча
+       выбрасывается — и сумма компонентов недосчитывается на всю её величину.</p>
+  </div>
+  <div class="panel">
+    <pre>EXPECTED_ASSET_COMPONENTS = {naqd_pullar, banklararo_joylashtirishlar,
+                             kredit_portfeli, kredit_zaxirasi,
+                             qimmatli_qogozlar, asosiy_vositalar}
+
+if missing_components(period):
+    log.warning(...)   # период пропускается, вердикт не выносится
+    continue</pre>
+    <div class="gbox" id="guard"></div>
+    <p class="muted" style="font-size:.9rem">Без защиты потеря одной статьи у чистого Milliy Bank
+       давала счёт 0.0224 при пороге 0.001 — превышение в 22 раза и минус два балла за ложное
+       обвинение. Настоящее нарушение при полном наборе по-прежнему ловится.</p>
+  </div>
+</section>
+
+<section>
+  <div class="shead">
+    <h2>Что изменилось в числах</h2>
+  </div>
+  <div class="tscroll"><table>
+    <thead><tr><th></th><th>было (main)</th><th>стало (test)</th></tr></thead>
+    <tbody>
+      <tr><td>сигнал детекции</td><td>скачок итога активов</td><td class="b">макс. скачок статьи</td></tr>
+      <tr><td>запас до чистых банков</td><td>3.1×</td><td class="b">4.9×</td></tr>
+      <tr><td>классификация</td><td>позиция периода в окне</td><td class="b">форма, 3 метрики</td></tr>
+      <tr><td>метка при 5 периодах</td><td class="c">Hamkor меняет тип</td><td class="b">не меняется</td></tr>
+      <tr><td>потеря статьи → FP</td><td class="c">да, счёт 0.0224</td><td class="b">вердикт не выносится</td></tr>
+      <tr><td>тестов</td><td>38</td><td class="b">54</td></tr>
+      <tr><td>результат прогона</td><td>6 из 13</td><td>6 из 13 — те же банки</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<div class="foot">github.com/kickcs/cbu-hack-ds · ветка test · числа из прогона на открытом датасете</div>
+</div>
+
+<script>
+const S = {"items": ["naqd_pullar", "banklararo_joylashtirishlar", "kredit_portfeli", "qimmatli_qogozlar", "asosiy_vositalar", "depozitlar_aholi", "depozitlar_yuridik", "banklararo_qarzlar", "chiqarilgan_qimmatli_qogozlar"], "pc1": [-0.3833, -0.3536, -0.3013, -0.3443, -0.3064, -0.3274, -0.3295, -0.3029, -0.3424], "pc1_var": 0.727, "pc1_cos_uniform": 0.9971, "panel_rows": 65, "cuts": {"breadth": 0.2, "uniformity": 0.65, "pc1": 0.7, "line_jump": 0.15}, "banks": [{"bank": "Agro Bank", "period": "2025-11", "prev": "2025-10", "line": "depozitlar_aholi", "line_change": 0.0582, "total_change": 0.0489, "changes": {"naqd_pullar": 0.0103, "banklararo_joylashtirishlar": 0.0484, "kredit_portfeli": 0.0435, "qimmatli_qogozlar": 0.0479, "asosiy_vositalar": 0.025, "depozitlar_aholi": 0.0582, "depozitlar_yuridik": 0.0223, "banklararo_qarzlar": 0.0074, "chiqarilgan_qimmatli_qogozlar": 0.0531}, "breadth": 0.748, "uniformity": 0.8899, "pc1": 0.8881, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Aloqa Bank", "period": "2026-03", "prev": "2026-02", "line": "depozitlar_yuridik", "line_change": 0.0598, "total_change": 0.002, "changes": {"naqd_pullar": 0.0223, "banklararo_joylashtirishlar": 0.0094, "kredit_portfeli": 0.0128, "qimmatli_qogozlar": 0.0405, "asosiy_vositalar": 0.0463, "depozitlar_aholi": 0.0297, "depozitlar_yuridik": 0.0598, "banklararo_qarzlar": 0.0063, "chiqarilgan_qimmatli_qogozlar": 0.0418}, "breadth": 0.4957, "uniformity": 0.8634, "pc1": 0.8623, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Asaka Bank", "period": "2025-12", "prev": "2025-11", "line": "kredit_portfeli", "line_change": 0.0595, "total_change": 0.038, "changes": {"naqd_pullar": 0.0449, "banklararo_joylashtirishlar": 0.0213, "kredit_portfeli": 0.0595, "qimmatli_qogozlar": 0.0321, "asosiy_vositalar": 0.0041, "depozitlar_aholi": 0.0283, "depozitlar_yuridik": 0.0161, "banklararo_qarzlar": 0.0256, "chiqarilgan_qimmatli_qogozlar": 0.0219}, "breadth": 0.4299, "uniformity": 0.8797, "pc1": 0.8818, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Davr Bank", "period": "2026-03", "prev": "2026-02", "line": "qimmatli_qogozlar", "line_change": 0.0596, "total_change": 0.0091, "changes": {"naqd_pullar": 0.0312, "banklararo_joylashtirishlar": 0.0271, "kredit_portfeli": 0.0145, "qimmatli_qogozlar": 0.0596, "asosiy_vositalar": 0.0186, "depozitlar_aholi": 0.0454, "depozitlar_yuridik": 0.0326, "banklararo_qarzlar": 0.0222, "chiqarilgan_qimmatli_qogozlar": 0.0189}, "breadth": 0.4552, "uniformity": 0.9101, "pc1": 0.9193, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Hamkor Bank", "period": "2026-02", "prev": "2026-01", "line": "banklararo_qarzlar", "line_change": 0.2936, "total_change": 0.2096, "changes": {"naqd_pullar": 0.1468, "banklararo_joylashtirishlar": 0.2068, "kredit_portfeli": 0.2573, "qimmatli_qogozlar": 0.1239, "asosiy_vositalar": 0.2664, "depozitlar_aholi": 0.2577, "depozitlar_yuridik": 0.2486, "banklararo_qarzlar": 0.2936, "chiqarilgan_qimmatli_qogozlar": 0.1701}, "breadth": 0.8467, "uniformity": 0.9686, "pc1": 0.9504, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": true}, {"bank": "Ipoteka Bank", "period": "2026-03", "prev": "2026-02", "line": "qimmatli_qogozlar", "line_change": 0.0547, "total_change": 0.0198, "changes": {"naqd_pullar": 0.0445, "banklararo_joylashtirishlar": 0.0003, "kredit_portfeli": 0.006, "qimmatli_qogozlar": 0.0547, "asosiy_vositalar": 0.0398, "depozitlar_aholi": 0.0129, "depozitlar_yuridik": 0.0128, "banklararo_qarzlar": 0.0064, "chiqarilgan_qimmatli_qogozlar": 0.053}, "breadth": 0.2363, "uniformity": 0.777, "pc1": 0.7944, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Kapital Bank", "period": "2026-01", "prev": "2025-12", "line": "banklararo_joylashtirishlar", "line_change": 0.0483, "total_change": 0.0043, "changes": {"naqd_pullar": 0.025, "banklararo_joylashtirishlar": 0.0483, "kredit_portfeli": 0.0014, "qimmatli_qogozlar": 0.0231, "asosiy_vositalar": 0.0069, "depozitlar_aholi": 0.0388, "depozitlar_yuridik": 0.0045, "banklararo_qarzlar": 0.0276, "chiqarilgan_qimmatli_qogozlar": 0.0166}, "breadth": 0.4775, "uniformity": 0.8199, "pc1": 0.8368, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Milliy Bank", "period": "2025-12", "prev": "2025-11", "line": "kredit_portfeli", "line_change": 0.059, "total_change": 0.022, "changes": {"naqd_pullar": 0.0348, "banklararo_joylashtirishlar": 0.0209, "kredit_portfeli": 0.059, "qimmatli_qogozlar": 0.0459, "asosiy_vositalar": 0.0459, "depozitlar_aholi": 0.0231, "depozitlar_yuridik": 0.0158, "banklararo_qarzlar": 0.0205, "chiqarilgan_qimmatli_qogozlar": 0.0286}, "breadth": 0.4843, "uniformity": 0.9208, "pc1": 0.9112, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Sanoat Bank", "period": "2025-12", "prev": "2025-11", "line": "banklararo_joylashtirishlar", "line_change": 0.0564, "total_change": 0.0167, "changes": {"naqd_pullar": 0.0516, "banklararo_joylashtirishlar": 0.0564, "kredit_portfeli": 0.0308, "qimmatli_qogozlar": 0.0307, "asosiy_vositalar": 0.0083, "depozitlar_aholi": 0.0439, "depozitlar_yuridik": 0.029, "banklararo_qarzlar": 0.0085, "chiqarilgan_qimmatli_qogozlar": 0.0021}, "breadth": 0.5446, "uniformity": 0.8441, "pc1": 0.8657, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Trast Bank", "period": "2025-12", "prev": "2025-11", "line": "kredit_portfeli", "line_change": 0.0575, "total_change": 0.0533, "changes": {"naqd_pullar": 0.0202, "banklararo_joylashtirishlar": 0.0556, "kredit_portfeli": 0.0575, "qimmatli_qogozlar": 0.0415, "asosiy_vositalar": 0.026, "depozitlar_aholi": 0.0499, "depozitlar_yuridik": 0.0313, "banklararo_qarzlar": 0.0379, "chiqarilgan_qimmatli_qogozlar": 0.0289}, "breadth": 0.6595, "uniformity": 0.951, "pc1": 0.9407, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Turon Bank", "period": "2025-11", "prev": "2025-10", "line": "depozitlar_yuridik", "line_change": 0.0593, "total_change": 0.02, "changes": {"naqd_pullar": 0.0025, "banklararo_joylashtirishlar": 0.037, "kredit_portfeli": 0.0181, "qimmatli_qogozlar": 0.026, "asosiy_vositalar": 0.0101, "depozitlar_aholi": 0.0035, "depozitlar_yuridik": 0.0593, "banklararo_qarzlar": 0.0349, "chiqarilgan_qimmatli_qogozlar": 0.0139}, "breadth": 0.3062, "uniformity": 0.7944, "pc1": 0.7843, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}, {"bank": "Universal Bank", "period": "2026-03", "prev": "2026-02", "line": "naqd_pullar", "line_change": 0.5527, "total_change": 0.1634, "changes": {"naqd_pullar": 0.5527, "banklararo_joylashtirishlar": 0.0098, "kredit_portfeli": 0.0171, "qimmatli_qogozlar": 0.0351, "asosiy_vositalar": 0.0367, "depozitlar_aholi": 0.3953, "depozitlar_yuridik": 0.0295, "banklararo_qarzlar": 0.0531, "chiqarilgan_qimmatli_qogozlar": 0.0225}, "breadth": 0.0635, "uniformity": 0.5607, "pc1": 0.594, "votes": 3, "voters": 3, "concentrated": true, "unanimous": true, "detected": true}, {"bank": "Xalq Banki", "period": "2025-12", "prev": "2025-11", "line": "depozitlar_yuridik", "line_change": 0.0566, "total_change": 0.0032, "changes": {"naqd_pullar": 0.0316, "banklararo_joylashtirishlar": 0.0242, "kredit_portfeli": 0.0216, "qimmatli_qogozlar": 0.0139, "asosiy_vositalar": 0.0006, "depozitlar_aholi": 0.0036, "depozitlar_yuridik": 0.0566, "banklararo_qarzlar": 0.0136, "chiqarilgan_qimmatli_qogozlar": 0.0234}, "breadth": 0.3812, "uniformity": 0.8011, "pc1": 0.8148, "votes": 0, "voters": 3, "concentrated": false, "unanimous": true, "detected": false}]};
+const R = {"window": [{"n": 6, "last": "2026-03", "new_disc": ["Hamkor Bank"], "new_win": ["Universal Bank"], "old_disc": ["Hamkor Bank"], "old_win": ["Universal Bank"]}, {"n": 5, "last": "2026-02", "new_disc": ["Hamkor Bank"], "new_win": ["Universal Bank"], "old_disc": [], "old_win": ["Hamkor Bank"]}, {"n": 4, "last": "2026-01", "new_disc": [], "new_win": ["Universal Bank"], "old_disc": [], "old_win": []}], "guard": [{"case": "все статьи на месте", "fired": ["Kapital Bank"], "milliy": 0.0}, {"case": "потеряна qimmatli_qogozlar", "fired": ["Kapital Bank"], "milliy": 0.0}, {"case": "потеряна naqd_pullar", "fired": ["Kapital Bank"], "milliy": 0.0}]};
+const CUTS = S.cuts, ITEMS = S.items, PC1 = S.pc1;
+const N = ITEMS.length;
+const $ = s => document.querySelector(s);
+const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!==undefined)e.innerHTML=h;return e;};
+const f=(v,d=3)=>Number(v).toFixed(d);
+const short=b=>b.replace(" Bank","").replace(" Banki","");
+
+/* ---- math (mirrors shape.py) ---- */
+function median(a){const s=[...a].sort((x,y)=>x-y),m=s.length>>1;
+  return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function breadth(v){const mx=Math.max(...v);return mx?median(v)/mx:1;}
+function norm(v){return Math.sqrt(v.reduce((s,x)=>s+x*x,0));}
+function uniformity(v){const n=norm(v);return n?v.reduce((s,x)=>s+x,0)/(n*Math.sqrt(v.length)):1;}
+function pc1align(v){const n=norm(v);if(!n)return 1;
+  return Math.abs(v.reduce((s,x,i)=>s+x*PC1[i],0))/n;}
+function classify(v){
+  const b=breadth(v),u=uniformity(v),p=pc1align(v);
+  const ballots=[b<CUTS.breadth,u<CUTS.uniformity,p<CUTS.pc1];
+  const votes=ballots.filter(Boolean).length;
+  return {b,u,p,votes,voters:3,concentrated:votes*2>3,unanimous:votes===0||votes===3};
+}
+
+/* ---- vector chart ---- */
+function drawVec(sel,vals,labels,opts={}){
+  const W=480,H=opts.h||130,L=6,Rr=6,T=10,B=34,iw=W-L-Rr,ih=H-T-B;
+  const mx=Math.max(...vals,0.0001), y=v=>T+ih-(v/mx)*ih, bw=iw/vals.length*0.6;
+  const peak=vals.indexOf(Math.max(...vals));
+  let s="";
+  vals.forEach((v,i)=>{
+    const cx=L+iw/vals.length*(i+0.5);
+    s+=`<rect class="vbar${i===peak&&opts.markPeak!==false?" peak":""}" x="${cx-bw/2}" y="${y(v)}" width="${bw}" height="${Math.max(T+ih-y(v),0.5)}" rx="1"/>`;
+    s+=`<text class="vt" x="${cx}" y="${H-20}" text-anchor="middle">${labels[i]}</text>`;
+    if(opts.showVals) s+=`<text class="vt" x="${cx}" y="${H-8}" text-anchor="middle">${(v*100).toFixed(0)}</text>`;
+  });
+  if(opts.median){const my=y(median(vals));
+    s+=`<line class="vmed" x1="${L}" y1="${my}" x2="${W-Rr}" y2="${my}"/>`;}
+  $(sel).innerHTML=s;
+}
+const SHORT_ITEMS = ITEMS.map(i=>({naqd_pullar:"касса",banklararo_joylashtirishlar:"мб.разм",
+  kredit_portfeli:"кредиты",qimmatli_qogozlar:"ЦБ",asosiy_vositalar:"осн.ср",
+  depozitlar_aholi:"деп.нас",depozitlar_yuridik:"деп.юр",banklararo_qarzlar:"мб.займ",
+  chiqarilgan_qimmatli_qogozlar:"вып.ЦБ"}[i]||i));
+
+/* ---- section: two real vectors ---- */
+function bankVec(name){const b=S.banks.find(x=>x.bank===name);
+  return {b, v:ITEMS.map(i=>b.changes[i]??0)};}
+["Hamkor Bank","Universal Bank"].forEach(nm=>{
+  const {v}=bankVec(nm);
+  drawVec("#vec-"+short(nm).toLowerCase(),v,SHORT_ITEMS,{median:true,showVals:true});
+});
+
+/* ---- window comparison ---- */
+function renderWindow(k){
+  const w=R.window.find(x=>x.n===k);
+  $("#winlab").textContent = `окно: ${k} мес · по ${w.last}`;
+  const line=(t,arr,cls)=>`<div class="verdict-line"><span class="t">${t}</span>`+
+    `<span class="v ${arr.length?cls:"none"}">${arr.length?arr.map(short).join(", "):"—"}</span></div>`;
+  const oldFlip = k===5;
+  $("#oldres").innerHTML = line("discontinuity",w.old_disc,"disc")+line("window_dressing",w.old_win,"win")+
+    (oldFlip?`<span class="flagmark err">Hamkor переклеен в накачку</span>`:"");
+  $("#newres").innerHTML = line("discontinuity",w.new_disc,"disc")+line("window_dressing",w.new_win,"win")+
+    `<span class="flagmark ok">метки устойчивы</span>`;
+  $("#newcard").classList.remove("bad");
+}
+$("#win").addEventListener("input",e=>renderWindow(+e.target.value));
+renderWindow(6);
+
+/* ---- lab ---- */
+let cur = ITEMS.map(i=>bankVec("Universal Bank").b.changes[i]??0);
+function renderLab(){
+  const r=classify(cur);
+  document.querySelectorAll("#sliders .srow").forEach((row,i)=>{
+    row.querySelector("input").value = Math.round(cur[i]*1000);
+    row.querySelector(".val").textContent = (cur[i]*100).toFixed(1)+"%";
+    row.classList.toggle("peak", cur[i]===Math.max(...cur));
+  });
+  drawVec("#vec-live",cur,SHORT_ITEMS,{median:true,showVals:true});
+
+  const defs=[["breadth",r.b,CUTS.breadth,"median/max"],
+              ["uniformity",r.u,CUTS.uniformity,"cos к равномерному"],
+              ["pc1_alignment",r.p,CUTS.pc1,"проекция на PC1"]];
+  const ro=$("#readout"); ro.innerHTML="";
+  defs.forEach(([k,v,cut,note])=>{
+    const hit=v<cut;
+    const m=el("div","mrow");
+    m.innerHTML=`<div class="top"><span class="k">${k}</span>`+
+      `<span class="v ${hit?"hit":"miss"}">${f(v)}</span></div>`+
+      `<div class="track"><div class="fill${hit?" hit":""}" style="width:${Math.min(v*100,100)}%"></div>`+
+      `<div class="cut" style="left:${cut*100}%"></div></div>`+
+      `<span class="note">${note} · порог ${cut} ${hit?"→ голос за концентрацию":"→ голос за сдвиг"}</span>`;
+    ro.append(m);
+  });
+  const fin=$("#final");
+  fin.className="final "+(r.concentrated?"conc":"broad");
+  fin.innerHTML=`<span class="lbl">вердикт формы</span>`+
+    `<span class="res">${r.concentrated?"window_dressing":"discontinuity"}</span>`+
+    `<span class="votes">${r.votes} из ${r.voters} за концентрацию · ${r.unanimous?"единогласно":"есть расхождение"}</span>`+
+    (Math.max(...cur)<=CUTS.line_jump?`<span class="votes" style="color:var(--conc)">скачок ${(Math.max(...cur)*100).toFixed(1)}% ниже порога ${CUTS.line_jump*100}% — детектор не сработает вовсе</span>`:"");
+}
+ITEMS.forEach((it,i)=>{
+  const row=el("div","srow");
+  row.innerHTML=`<label for="s${i}">${SHORT_ITEMS[i]}</label>`+
+    `<input type="range" id="s${i}" min="0" max="600" step="5" aria-label="${it}">`+
+    `<span class="val"></span>`;
+  row.querySelector("input").addEventListener("input",e=>{cur[i]=+e.target.value/1000;renderLab();});
+  $("#sliders").append(row);
+});
+[["Universal — накачка","Universal Bank"],["Hamkor — сдвиг","Hamkor Bank"],
+ ["Kapital — чистый","Kapital Bank"],["Ipoteka — чистый","Ipoteka Bank"]].forEach(([lbl,nm])=>{
+  const b=el("button","pbtn",lbl); b.type="button";
+  b.onclick=()=>{cur=ITEMS.map(i=>bankVec(nm).b.changes[i]??0);renderLab();};
+  $("#presets").append(b);
+});
+const flat=el("button","pbtn","всё поровну"); flat.type="button";
+flat.onclick=()=>{cur=ITEMS.map(()=>0.22);renderLab();};
+$("#presets").append(flat);
+const one=el("button","pbtn","одна статья"); one.type="button";
+one.onclick=()=>{cur=ITEMS.map((_,i)=>i===0?0.55:0.02);renderLab();};
+$("#presets").append(one);
+renderLab();
+
+/* ---- PCA ---- */
+$("#prows").textContent=S.panel_rows;
+$("#pvar").textContent=(S.pc1_var*100).toFixed(1)+"%";
+$("#pcos").textContent=f(S.pc1_cos_uniform,4);
+drawVec("#vec-pc1",PC1.map(Math.abs),SHORT_ITEMS,{markPeak:false,h:120});
+
+/* ---- votes table ---- */
+(function(){
+  $("#lj").textContent=(CUTS.line_jump*100)+"%";
+  const rows=S.banks.slice().sort((a,b)=>b.line_change-a.line_change);
+  let h="<thead><tr><th>банк</th><th>скачок</th><th>breadth</th><th>uniformity</th><th>PC1</th>"+
+        "<th>голоса</th><th>форма</th><th>детектор</th></tr></thead><tbody>";
+  rows.forEach(b=>{
+    const on=b.detected, conc=b.concentrated;
+    h+=`<tr class="${on?"":"dim"}"><td>${b.bank}</td>`+
+       `<td class="${on?"c":""}">${f(b.line_change)}</td>`+
+       `<td class="${b.breadth<CUTS.breadth?"c":""}">${f(b.breadth)}</td>`+
+       `<td class="${b.uniformity<CUTS.uniformity?"c":""}">${f(b.uniformity)}</td>`+
+       `<td class="${b.pc1<CUTS.pc1?"c":""}">${f(b.pc1)}</td>`+
+       `<td>${b.votes}/${b.voters}</td>`+
+       `<td class="${conc?"c":"b"}">${conc?"концентр.":"широкий"}</td>`+
+       `<td class="${on?(conc?"c":"b"):""}">${on?(conc?"window_dressing":"discontinuity"):"—"}</td></tr>`;
+  });
+  $("#votes").innerHTML=h+"</tbody>";
+})();
+
+/* ---- guard ---- */
+R.guard.forEach(g=>{
+  const c=el("div","gcase"+(g.milliy===0?" safe":""));
+  c.innerHTML=`<span class="cs">${g.case}</span>`+
+    `<span class="rs">сработали: ${g.fired.map(short).join(", ")||"—"}</span>`+
+    `<span class="cs">счёт Milliy Bank: ${f(g.milliy,4)}</span>`;
+  $("#guard").append(c);
+});
+</script>
