@@ -1,3 +1,4 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>regtech.db</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -229,6 +230,54 @@
     color: var(--muted); font-size: 0.86rem;
     font-family: "JetBrains Mono", monospace;
   }
+
+/* ---------- мобильные ---------- */
+html{-webkit-text-size-adjust:100%}
+img,svg{max-width:100%}
+@media (max-width:640px){
+  .wrap{padding:30px 14px 64px;gap:40px}
+  h1{font-size:1.75rem}
+  h2{font-size:1.22rem}
+  body{font-size:16px}
+  .panel,.lab,.mcard,.gate,.gcase,.cmpcard,.card,.axis{padding:15px}
+  section{gap:16px}
+  /* всё, что было в две колонки, — в одну */
+  .two,.vp,.lab,.cmp,.lab-body,.gbox,.gates,.mcards,.axes,.cards{grid-template-columns:1fr!important}
+  /* сетки кнопок — минимум по две в ряд, но не уже 128px */
+  .dets,.pipe{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
+  /* столбчатые графики сжимаются до ширины экрана */
+  .chart{min-width:320px!important}
+  .vecchart{min-width:0!important}
+  /* ER-диаграмму сжимать нельзя — подписи станут нечитаемы, поэтому прокрутка */
+  .chart-box,.diagram{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .diagram{position:relative}
+  .diagram::after{content:"← прокрутите →";position:sticky;left:0;display:block;
+    font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--muted);
+    padding-top:6px;text-align:center}
+  /* пальцем удобнее: увеличенные цели нажатия */
+  .pick,.pbtn,.det,.stage,.tg{min-height:44px}
+  .pick,.pbtn{padding:10px 12px;font-size:.82rem}
+  .det,.stage{padding:12px}
+  .tg{padding:12px 13px}
+  /* таблицы прокручиваются, а не ломают вёрстку */
+  .tscroll,.mscroll{-webkit-overflow-scrolling:touch}
+  th,td{padding:7px 10px;font-size:.8rem}
+  /* пары ключ-значение в столбик */
+  .kv{grid-template-columns:1fr;gap:2px 0}
+  .kv dd{margin-bottom:8px}
+  /* длинные моно-строки переносятся, а не распирают экран */
+  pre{font-size:.74rem;padding:11px 12px}
+  code{overflow-wrap:anywhere}
+  .formula{font-size:.78rem;overflow-x:auto}
+  .srow{grid-template-columns:96px 1fr 46px}
+  .fstep{grid-template-columns:20px 1fr;gap:10px}
+}
+@media (max-width:380px){
+  .wrap{padding:24px 11px 56px}
+  h1{font-size:1.55rem}
+  .dets,.pipe{grid-template-columns:1fr}
+  .chip{font-size:.72rem}
+}
 </style>
 
 <div class="wrap">
